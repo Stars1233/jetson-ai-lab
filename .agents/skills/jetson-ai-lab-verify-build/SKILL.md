@@ -1,4 +1,4 @@
----
+﻿---
 name: jetson-ai-lab-verify-build
 description: Run npm run build on jetson-ai-lab and triage Astro content collection / MDX failures after edits. Use when verifying the site builds after content, model, tutorial, or asset changes.
 license: Apache-2.0
@@ -24,7 +24,7 @@ From the **repository root** (where `package.json` and `astro.config.mjs` live):
 npm run build
 ```
 
-Resolve all errors before merging. Do not assume “dev server only” is enough for content-schema issues—**production build** validates collections.
+Resolve all errors before merging. Do not assume ΓÇ£dev server onlyΓÇ¥ is enough for content-schema issuesΓÇö**production build** validates collections.
 
 ---
 
@@ -44,7 +44,7 @@ Tutorial files under **`src/content/tutorials/`** are MDX. Unescaped `$` or `~` 
 
 ### Missing assets
 
-Broken links to `/code-samples/...` usually mean the file is missing under **`public/code-samples/`**—see skill **`jetson-ai-lab-code-samples`**.
+Broken links to `/code-samples/...` usually mean the file is missing under **`public/code-samples/`**ΓÇösee skill **`jetson-ai-lab-code-samples`**.
 
 ---
 
