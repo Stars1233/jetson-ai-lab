@@ -8,8 +8,6 @@ tags: ["openclaw", "ollama", "vllm", "qwen3.5", "nemotron", "jetson-orin-nano", 
 isNew: true
 hideMigrationNotice: true
 authors:
-  - name: "Khalil BenKhaled"
-    github: "NebulaTurnip27"
   - name: "Asier Arranz"
     github: "asierarranz"
 ---
