@@ -63,13 +63,13 @@ We will use a pre-built Docker container published by NVIDIA that has vLLM and a
 **Jetson Orin**
 
 ```bash
-docker pull ghcr.io/nvidia-ai-iot/vllm:gemma4-jetson-orin
+docker pull ghcr.io/nvidia-ai-iot/vllm:latest-jetson-orin
 ```
 
 **Jetson Thor**
 
 ```bash
-docker pull ghcr.io/nvidia-ai-iot/vllm:gemma4-jetson-thor
+docker pull ghcr.io/nvidia-ai-iot/vllm:latest-jetson-thor
 ```
 
 ---
@@ -91,13 +91,13 @@ In **Terminal 1**, start and enter the container:
 **Jetson Orin**
 
 ```bash
-sudo docker run --rm -it --network host --shm-size=16g --ulimit memlock=-1 --ulimit stack=67108864 --runtime=nvidia --name=vllm -v $HOME/.cache/huggingface:/root/.cache/huggingface ghcr.io/nvidia-ai-iot/vllm:gemma4-jetson-orin
+sudo docker run --rm -it --network host --shm-size=16g --ulimit memlock=-1 --ulimit stack=67108864 --runtime=nvidia --name=vllm -v $HOME/.cache/huggingface:/root/.cache/huggingface ghcr.io/nvidia-ai-iot/vllm:latest-jetson-orin
 ```
 
 **Jetson Thor**
 
 ```bash
-sudo docker run --rm -it --network host --shm-size=16g --ulimit memlock=-1 --ulimit stack=67108864 --runtime=nvidia --name=vllm -v $HOME/.cache/huggingface:/root/.cache/huggingface ghcr.io/nvidia-ai-iot/vllm:gemma4-jetson-thor
+sudo docker run --rm -it --network host --shm-size=16g --ulimit memlock=-1 --ulimit stack=67108864 --runtime=nvidia --name=vllm -v $HOME/.cache/huggingface:/root/.cache/huggingface ghcr.io/nvidia-ai-iot/vllm:latest-jetson-thor
 ```
 
 In **Terminal 2**, access the same running container:
