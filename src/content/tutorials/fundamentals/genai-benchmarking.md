@@ -9,9 +9,9 @@ featured: false
 isNew: true
 ---
 
-In this tutorial, we will walk you through benchmarking Large Language Models (LLMs) and Vision Language Models (VLMs) on your Jetson. This is meant to be a more general benchmarking guide that helps you understand both the workflow and the meaning of the main metrics.
+In this tutorial, we will walk you through benchmarking Large Language Models (LLMs) and Vision Language Models (VLMs) on your Jetson. This is meant to be a more general benchmarking guide that helps you understand the workflow and the main metrics.
 
-We will begin by serving the model, focusing on the minimal setup needed to run a benchmark. Then, we will capture and analyze the most critical metrics from the run.
+We will begin by serving the model with a simple setup, then capture and analyze the most critical metrics from our benchmark.
 
 ---
 
@@ -60,26 +60,17 @@ sudo nvpmodel -m 0
 
 We will use a pre-built Docker container published by NVIDIA that has vLLM and all its dependencies. This guarantees a consistent environment for reproducible results and saves us from the complex process of building vLLM from source.
 
-<div class="device-tabs">
-<div class="device-tab-bar">
-<button class="device-tab active" data-target="orin">Jetson Orin</button>
-<button class="device-tab" data-target="thor">Jetson Thor</button>
-</div>
-<div class="device-panel" data-panel="orin">
+**Jetson Orin**
 
 ```bash
 docker pull ghcr.io/nvidia-ai-iot/vllm:gemma4-jetson-orin
 ```
 
-</div>
-<div class="device-panel" data-panel="thor" style="display:none">
+**Jetson Thor**
 
 ```bash
 docker pull ghcr.io/nvidia-ai-iot/vllm:gemma4-jetson-thor
 ```
-
-</div>
-</div>
 
 ---
 
@@ -97,26 +88,17 @@ Open two terminal windows on your Jetson:
 
 In **Terminal 1**, start and enter the container:
 
-<div class="device-tabs">
-<div class="device-tab-bar">
-<button class="device-tab active" data-target="orin-container">Jetson Orin</button>
-<button class="device-tab" data-target="thor-container">Jetson Thor</button>
-</div>
-<div class="device-panel" data-panel="orin-container">
+**Jetson Orin**
 
 ```bash
 sudo docker run --rm -it --network host --shm-size=16g --ulimit memlock=-1 --ulimit stack=67108864 --runtime=nvidia --name=vllm -v $HOME/.cache/huggingface:/root/.cache/huggingface ghcr.io/nvidia-ai-iot/vllm:gemma4-jetson-orin
 ```
 
-</div>
-<div class="device-panel" data-panel="thor-container" style="display:none">
+**Jetson Thor**
 
 ```bash
 sudo docker run --rm -it --network host --shm-size=16g --ulimit memlock=-1 --ulimit stack=67108864 --runtime=nvidia --name=vllm -v $HOME/.cache/huggingface:/root/.cache/huggingface ghcr.io/nvidia-ai-iot/vllm:gemma4-jetson-thor
 ```
-
-</div>
-</div>
 
 In **Terminal 2**, access the same running container:
 
