@@ -7,14 +7,11 @@ order: 2
 tags: ["benchmarking", "vllm", "llm", "vlm", "performance", "throughput", "latency", "ttft", "jetson"]
 featured: false
 isNew: true
-authors:
-  - name: "Khalil BenKhaled"
-    github: "NebulaTurnip27"
 ---
 
-In this tutorial, we will walk you through benchmarking Large Language Models (LLMs) and Vision Language Models (VLMs) on your Jetson. For this guide, we'll use vLLM as our inference engine of choice due to its high throughput and efficiency. We'll focus on measuring the model's speed and performance, which are critical to give you an idea of how your system will react under different loads.
+In this tutorial, we will walk you through benchmarking Large Language Models (LLMs) and Vision Language Models (VLMs) on your Jetson. This is meant to be a more general benchmarking guide that helps you understand the workflow and the main metrics.
 
-We will begin by serving the model, focusing on the key arguments to pass to vLLM. Then, we will capture and analyze the most critical metrics from our benchmark.
+We will begin by serving the model with a simple setup, then capture and analyze the most critical metrics from our benchmark.
 
 ---
 
@@ -63,10 +60,16 @@ sudo nvpmodel -m 0
 
 We will use a pre-built Docker container published by NVIDIA that has vLLM and all its dependencies. This guarantees a consistent environment for reproducible results and saves us from the complex process of building vLLM from source.
 
-Pull the container:
+**Jetson Orin**
 
 ```bash
-docker pull nvcr.io/nvidia/vllm:25.09-py3
+docker pull ghcr.io/nvidia-ai-iot/vllm:latest-jetson-orin
+```
+
+**Jetson Thor**
+
+```bash
+docker pull ghcr.io/nvidia-ai-iot/vllm:latest-jetson-thor
 ```
 
 ---
@@ -85,8 +88,16 @@ Open two terminal windows on your Jetson:
 
 In **Terminal 1**, start and enter the container:
 
+**Jetson Orin**
+
 ```bash
-sudo docker run --rm -it --network host --shm-size=16g --ulimit memlock=-1 --ulimit stack=67108864 --runtime=nvidia --name=vllm nvcr.io/nvidia/vllm:25.09-py3
+sudo docker run --rm -it --network host --shm-size=16g --ulimit memlock=-1 --ulimit stack=67108864 --runtime=nvidia --name=vllm -v $HOME/.cache/huggingface:/root/.cache/huggingface ghcr.io/nvidia-ai-iot/vllm:latest-jetson-orin
+```
+
+**Jetson Thor**
+
+```bash
+sudo docker run --rm -it --network host --shm-size=16g --ulimit memlock=-1 --ulimit stack=67108864 --runtime=nvidia --name=vllm -v $HOME/.cache/huggingface:/root/.cache/huggingface ghcr.io/nvidia-ai-iot/vllm:latest-jetson-thor
 ```
 
 In **Terminal 2**, access the same running container:
@@ -102,28 +113,17 @@ You should now have two terminals, both inside the same running Docker container
 In your Serving Terminal, run the following command to load the Meta-Llama-3.1-8B quantized model:
 
 ```bash
-VLLM_ATTENTION_BACKEND=FLASHINFER vllm serve "RedHatAI/Meta-Llama-3.1-8B-Instruct-quantized.w4a16" \
---port "8000" \
---host "0.0.0.0" \
---trust_remote_code \
---swap-space 16 \
---max-seq-len 32000 \
---max-model-len 32000 \
---tensor-parallel-size 1 \
---max-num-seqs 1024 \
---gpu-memory-utilization 0.8
+vllm serve "RedHatAI/Meta-Llama-3.1-8B-Instruct-quantized.w4a16" \
+  --gpu-memory-utilization 0.8
 ```
 
-**What these arguments mean:**
+**What this argument means:**
 
-- `VLLM_ATTENTION_BACKEND=FLASHINFER`: Uses the FlashInfer backend for optimized self-attention on NVIDIA GPUs. If you get a "CUDA Kernel not supported" error, try `VLLM_ATTENTION_BACKEND=FLASH_ATTN`.
-- `--gpu-memory-utilization 0.8`: Lets vLLM use ~80% of total memory. Model weights load first, and remaining capacity is pre-allocated to the KV cache.
-- `--max-seq-len 32000`: Sets an upper limit on input sequence length.
-- `--max-model-len 32000`: Sets an upper bound on the model's context window (prompt + output tokens).
+- `--gpu-memory-utilization 0.8`: Lets vLLM use about 80% of available GPU memory for serving. This is a simple and practical starting point for benchmarking.
 
 Wait until you see:
 
-```
+```text
 (APIServer pid=92) INFO:     Waiting for application startup.
 (APIServer pid=92) INFO:     Application startup complete.
 ```
@@ -199,32 +199,32 @@ vllm bench serve \
 
 After your benchmark runs, you will get a summary table. Here's an example output:
 
-```
+```text
 ============ Serving Benchmark Result ============
-Successful requests:                     50        
-Maximum request concurrency:             1         
-Benchmark duration (s):                  233.17    
-Total input tokens:                      10058     
-Total generated tokens:                  10303     
-Request throughput (req/s):              0.21      
-Output token throughput (tok/s):         44.19     
-Total Token throughput (tok/s):          87.32     
+Successful requests:                     50
+Maximum request concurrency:             1
+Benchmark duration (s):                  233.17
+Total input tokens:                      10058
+Total generated tokens:                  10303
+Request throughput (req/s):              0.21
+Output token throughput (tok/s):         44.19
+Total Token throughput (tok/s):          87.32
 ---------------Time to First Token----------------
-Mean TTFT (ms):                          32.02     
-Median TTFT (ms):                        31.38     
-P99 TTFT (ms):                           38.12     
+Mean TTFT (ms):                          32.02
+Median TTFT (ms):                        31.38
+P99 TTFT (ms):                           38.12
 -----Time per Output Token (excl. 1st token)------
-Mean TPOT (ms):                          22.61     
-Median TPOT (ms):                        22.56     
-P99 TPOT (ms):                           24.97     
+Mean TPOT (ms):                          22.61
+Median TPOT (ms):                        22.56
+P99 TPOT (ms):                           24.97
 ---------------Inter-token Latency----------------
-Mean ITL (ms):                           22.47     
-Median ITL (ms):                         22.58     
-P99 ITL (ms):                            23.79     
+Mean ITL (ms):                           22.47
+Median ITL (ms):                         22.58
+P99 ITL (ms):                            23.79
 ----------------End-to-end Latency----------------
-Mean E2EL (ms):                          4663.04   
-Median E2EL (ms):                        3450.02   
-P99 E2EL (ms):                           15030.27  
+Mean E2EL (ms):                          4663.04
+Median E2EL (ms):                        3450.02
+P99 E2EL (ms):                           15030.27
 ==================================================
 ```
 
@@ -232,7 +232,13 @@ P99 E2EL (ms):                           15030.27
 
 **Output token throughput (tok/s): 44.19**
 
-This metric measures the generation speed for a single user. A result of 44.19 tokens/second indicates very strong processing capability, delivering text much faster than a person can read.
+vLLM measures this like:
+
+```text
+total generated tokens / total benchmark time
+```
+
+Keep in mind this is not just the generation time by itself. It also has the **TTFT** integrated into it, so it is better to think of this as a practical serving metric rather than a pure decode-only speed number.
 
 **Mean TTFT (ms): 32.02**
 
@@ -258,9 +264,3 @@ This is the classic trade-off between **overall capacity** and **individual user
 > **Note:** The term "user" in this tutorial could mean the entity which consumes the output of the model — which could be a robotic application using the model in a drone, a humanoid, or simply you using it as a local LLM inference hardware.
 
 ---
-
-## Next Steps
-
-- [Introduction to GenAI](/tutorials/genai-on-jetson-llms-vlms) - Learn about Ollama and vLLM for different use cases
-- [Supported Models](/models) - Browse optimized models with benchmark data
-- [vLLM Documentation](https://docs.vllm.ai/en/v0.10.1/cli/bench/serve.html#options) - Explore more benchmark options
