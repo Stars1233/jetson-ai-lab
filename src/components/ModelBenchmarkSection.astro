@@ -104,8 +104,8 @@ const firstEngine = engineNames[0] ?? '';
 					</p>
 				</div>
 				<div class="flex flex-wrap items-center gap-2 self-start mt-1">
-					{/* Engine toggle — only rendered when >1 engine has data */}
-					{engineNames.length > 1 && (
+					{/* Engine toggle — always shown so users know which engine the benchmark used */}
+					{engineNames.length > 0 && (
 						<div
 							id="bench-engine-toggle"
 							class="inline-flex rounded-lg bg-nvidia-gray-100 p-0.5"
@@ -289,6 +289,9 @@ const firstEngine = engineNames[0] ?? '';
 				<filter id="ebar-glow" x="-80%" y="-80%" width="260%" height="260%">
 					<feGaussianBlur in="SourceGraphic" stdDeviation="7"/>
 				</filter>
+				<filter id="bar-shadow" x="-20%" y="-10%" width="160%" height="140%">
+					<feGaussianBlur in="SourceGraphic" stdDeviation="2.5"/>
+				</filter>
 			</defs>
 			<style>
 				.bbar{transform-box:fill-box;transform-origin:50% 100%;animation:bbar-in 0.4s cubic-bezier(.25,.46,.45,.94) both}
@@ -357,7 +360,7 @@ const firstEngine = engineNames[0] ?? '';
 
 				const gp = 5; // glow padding beyond bar edges
 				s += `<rect x="${x - gp}" y="${by - gp}" width="${barW + gp * 2}" height="${bh + gp * 2}" fill="${engineHue}" opacity="0.35" rx="${rx + 2}" filter="url(#ebar-glow)"/>`;
-				s += `<rect x="${x + 1}" y="${by + 2}" width="${barW}" height="${bh}" fill="black" opacity="0.05" rx="${rx}"/>`;
+				s += `<rect x="${x + 3}" y="${by + 4}" width="${barW}" height="${bh}" fill="black" opacity="0.13" rx="${rx}" filter="url(#bar-shadow)"/>`;
 				s += `<rect x="${x}" y="${by}" width="${barW}" height="${bh}" fill="${model.color}" rx="${rx}"
 					class="bbar" style="cursor:pointer;animation-delay:${bi * 40}ms"
 					data-tip="${model.name}: ${val} ${benchData.unit}"/>`;
