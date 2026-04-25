@@ -289,8 +289,8 @@ const firstEngine = engineNames[0] ?? '';
 				<filter id="ebar-glow" x="-80%" y="-80%" width="260%" height="260%">
 					<feGaussianBlur in="SourceGraphic" stdDeviation="7"/>
 				</filter>
-				<filter id="bar-shadow" x="-20%" y="-10%" width="160%" height="140%">
-					<feGaussianBlur in="SourceGraphic" stdDeviation="2.5"/>
+				<filter id="bar-shadow" x="-5%" y="-5%" width="135%" height="140%">
+					<feDropShadow dx="3" dy="4" stdDeviation="2" flood-color="black" flood-opacity="0.18"/>
 				</filter>
 			</defs>
 			<style>
@@ -360,9 +360,8 @@ const firstEngine = engineNames[0] ?? '';
 
 				const gp = 5; // glow padding beyond bar edges
 				s += `<rect x="${x - gp}" y="${by - gp}" width="${barW + gp * 2}" height="${bh + gp * 2}" fill="${engineHue}" opacity="0.35" rx="${rx + 2}" filter="url(#ebar-glow)"/>`;
-				s += `<rect x="${x + 3}" y="${by + 4}" width="${barW}" height="${bh}" fill="black" opacity="0.13" rx="${rx}" filter="url(#bar-shadow)"/>`;
 				s += `<rect x="${x}" y="${by}" width="${barW}" height="${bh}" fill="${model.color}" rx="${rx}"
-					class="bbar" style="cursor:pointer;animation-delay:${bi * 40}ms"
+					class="bbar" filter="url(#bar-shadow)" style="cursor:pointer;animation-delay:${bi * 40}ms"
 					data-tip="${model.name}: ${val} ${benchData.unit}"/>`;
 				if (bh > 20) {
 					s += `<text x="${x + barW / 2}" y="${by - 4}" text-anchor="middle"
