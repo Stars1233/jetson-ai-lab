@@ -45,6 +45,10 @@ supported_inference_engines:
           --ctx-size 8196 \
           --alias my_model \
           --n-gpu-layers 999
+benchmark_key: "Nemotron3 Nano 4B"
+benchmark_series:
+  - "Nemotron Nano 9B V2"
+  - "Nemotron 3 30B-A3B"
 ---
 
 Nemotron3 Nano 4B is a compact NVIDIA language model that can be served locally on Jetson with `llama.cpp`, giving Jetson Orin and Jetson Thor day-0 support through a simple OpenAI-compatible `llama-server` workflow.

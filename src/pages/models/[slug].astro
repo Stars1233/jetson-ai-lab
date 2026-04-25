@@ -6,6 +6,7 @@ import ModelCallSection from '../../components/ModelCallSection.astro';
 import ModelBenchmarkSection from '../../components/ModelBenchmarkSection.astro';
 import ModelOneShotSection from '../../components/ModelOneShotSection.astro';
 import { getSupportedInferenceEngines, sortEnginesForUi } from '../../lib/modelFrontmatterAdapter';
+import benchmarksData from '../../data/benchmarks.json';
 
 export async function getStaticPaths() {
   const models = await getCollection('models');
@@ -24,6 +25,14 @@ const huggingfaceUrl = data.huggingface_url || (data.hf_checkpoint ? `https://hu
 const isGemma4Family = data.family === 'Google Gemma4';
 
 const sortedEngines = sortEnginesForUi(getSupportedInferenceEngines(data));
+
+const benchmarkEntry = data.benchmark_key
+  ? ((benchmarksData.models as any[]).find((m) => m.name === data.benchmark_key) ?? null)
+  : null;
+
+const benchmarkSeries = (data.benchmark_series ?? [])
+  .map((k) => (benchmarksData.models as any[]).find((m) => m.name === k) ?? null)
+  .filter((m): m is NonNullable<typeof m> => m !== null);
 
 const inferenceNeedsHfToken = sortedEngines.some((e) => {
   const cmds = [
@@ -126,10 +135,11 @@ const inferenceNeedsHfToken = sortedEngines.some((e) => {
         </div>
       </section>
       <ModelOneShotSection oneShot={data.one_shot_inference} modelSlug={entry.slug} />
-      {data.benchmark && (
-        <ModelBenchmarkSection benchmark={data.benchmark} engines={sortedEngines} />
-      )}
     </div>
+  )}
+
+  {benchmarkEntry && (
+    <ModelBenchmarkSection entry={benchmarkEntry} seriesEntries={benchmarkSeries} />
   )}
 
   {/* Model Details / Description Section */}

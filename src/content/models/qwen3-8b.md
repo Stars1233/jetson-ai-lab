@@ -42,6 +42,9 @@ supported_inference_engines:
         --runtime=nvidia --network host \
         ghcr.io/nvidia-ai-iot/vllm:latest-jetson-thor \
         vllm serve RedHatAI/Qwen3-8B-quantized.w4a16
+benchmark_key: "Qwen 3 8B"
+benchmark_series:
+  - "Qwen 3 4B"
 ---
 
 Qwen3 8B is a more powerful variant in Alibaba Cloud's latest generation of large language models. With 8 billion parameters, it offers enhanced capabilities while remaining deployable on edge devices.

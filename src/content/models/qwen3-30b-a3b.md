@@ -41,6 +41,9 @@ supported_inference_engines:
         --runtime=nvidia --network host \
         ghcr.io/nvidia-ai-iot/vllm:latest-jetson-thor \
         vllm serve RedHatAI/Qwen3-30B-A3B-quantized.w4a16
+benchmark_key: "Qwen3-30B-A3B"
+benchmark_series:
+  - "Qwen3-32B"
 ---
 
 Qwen3 30B-A3B is a Mixture-of-Experts (MoE) model from Alibaba Cloud's Qwen3 family. It features 30 billion total parameters with only 3 billion active during inference, providing excellent performance with improved efficiency.

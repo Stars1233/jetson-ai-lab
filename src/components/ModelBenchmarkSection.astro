@@ -1,93 +1,411 @@
 ---
-import type { SupportedEngineEntry } from '../lib/inferenceCommands';
+const PRODUCTS = [
+	{ id: 't5000',         label: 'T5000' },
+	{ id: 't4000',         label: 'T4000' },
+	{ id: 'agx_orin_64gb', label: 'AGX Orin\n64GB' },
+	{ id: 'orin_nx_16gb',  label: 'Orin NX\n16GB' },
+	{ id: 'orin_nano_8gb', label: 'Orin Nano\n8GB' },
+] as const;
 
-interface BenchRow {
-	concurrency1: number;
-	concurrency8: number;
-	ttftMs?: number;
+type ProductId = (typeof PRODUCTS)[number]['id'];
+
+interface EngineData {
+	concurrency1: Partial<Record<ProductId, number | null>>;
+	concurrency8: Partial<Record<ProductId, number | null>>;
+}
+
+interface BenchmarkEntry {
+	name: string;
+	quantization: string;
+	isl: number | null;
+	osl: number | null;
+	engines: Record<string, EngineData>;
 }
 
 interface Props {
-	benchmark: Record<string, BenchRow | undefined>;
-	engines: SupportedEngineEntry[];
+	entry: BenchmarkEntry;
+	seriesEntries?: BenchmarkEntry[];
 }
 
-const { benchmark, engines } = Astro.props;
+const { entry, seriesEntries = [] } = Astro.props;
+const { quantization, isl, osl } = entry;
+const unit = isl !== null ? 'tok/s' : 'inf/s';
 
-const hasVllm = engines.some(
-	(e) => e.engine.toLowerCase().replace(/[.\-_]/g, '') === 'vllm',
+const allModels = [entry, ...seriesEntries];
+
+// Color palette: main model = NVIDIA green, series = progressively paler gray
+const MAIN_COLOR = '#76B900';
+const SERIES_COLORS = ['#ADADAD', '#C8C8C8', '#DEDEDE'];
+const modelColors = allModels.map((_, i) =>
+	i === 0 ? MAIN_COLOR : (SERIES_COLORS[i - 1] ?? SERIES_COLORS[SERIES_COLORS.length - 1]),
 );
 
-const orin = benchmark.orin;
-const thor = benchmark.thor;
-const hasAny = !!(orin || thor);
+// Collect all engine names across all models (preserving first-seen order)
+const engineNames: string[] = [];
+for (const m of allModels) {
+	for (const e of Object.keys(m.engines)) {
+		if (!engineNames.includes(e)) engineNames.push(e);
+	}
+}
+
+const hasAnyData = allModels.some((m) =>
+	Object.values(m.engines).some((eng) =>
+		PRODUCTS.some(
+			(p) =>
+				(eng.concurrency1[p.id] ?? null) !== null ||
+				(eng.concurrency8[p.id] ?? null) !== null,
+		),
+	),
+);
+
+const clientData = hasAnyData
+	? {
+			unit,
+			engineNames,
+			models: allModels.map((m, i) => ({
+				name: m.name,
+				color: modelColors[i],
+				isMain: i === 0,
+				engines: Object.fromEntries(
+					Object.entries(m.engines).map(([eng, data]) => [
+						eng,
+						{
+							c1: Object.fromEntries(PRODUCTS.map((p) => [p.id, data.concurrency1[p.id] ?? null])),
+							c8: Object.fromEntries(PRODUCTS.map((p) => [p.id, data.concurrency8[p.id] ?? null])),
+						},
+					]),
+				),
+			})),
+			products: PRODUCTS.map((p) => ({ id: p.id, label: p.label })),
+		}
+	: null;
+
+const firstEngine = engineNames[0] ?? '';
 ---
 
-{
-	hasAny && hasVllm && (
-		<section
-			id="model-benchmark"
-			class="py-16 bg-white border-b border-nvidia-gray-200 scroll-mt-20"
-			aria-labelledby="model-benchmark-heading"
-		>
-			<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-				<h2 id="model-benchmark-heading" class="text-3xl font-bold text-nvidia-black mb-2">
-					Benchmark
-				</h2>
-				<p class="text-sm text-nvidia-gray-600 max-w-3xl mb-8">
-					Throughput numbers below were measured with vLLM on Jetson under the lab&apos;s test setup.
-					Your results will vary with image, clocks, and workload.
-				</p>
+{hasAnyData && (
+	<section
+		id="model-benchmark"
+		class="py-16 bg-white border-b border-nvidia-gray-200 scroll-mt-20"
+		aria-labelledby="model-benchmark-heading"
+	>
+		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-				<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-					{orin && (
-						<div class="rounded-xl border border-nvidia-gray-200 bg-nvidia-gray-50/80 p-6">
-							<h3 class="text-sm font-semibold text-nvidia-gray-500 uppercase tracking-wide mb-4">
-								Jetson Orin (vLLM)
-							</h3>
-							<div class="grid grid-cols-2 gap-4">
-								<div class="bg-white rounded-lg p-4 border border-nvidia-gray-100">
-									<div class="text-3xl font-bold text-nvidia-green text-center">{orin.concurrency1}</div>
-									<div class="text-sm text-nvidia-gray-600 mt-2 text-center">tokens/sec (concurrency 1)</div>
-								</div>
-								<div class="bg-white rounded-lg p-4 border border-nvidia-gray-100">
-									<div class="text-3xl font-bold text-nvidia-green text-center">{orin.concurrency8}</div>
-									<div class="text-sm text-nvidia-gray-600 mt-2 text-center">tokens/sec (concurrency 8)</div>
-								</div>
-							</div>
-							{orin.ttftMs != null && orin.ttftMs > 0 && (
-								<div class="mt-4 bg-white rounded-lg p-4 border border-nvidia-gray-100 text-center">
-									<div class="text-2xl font-bold text-nvidia-black">{orin.ttftMs} ms</div>
-									<div class="text-sm text-nvidia-gray-600 mt-1">Time to first token</div>
-								</div>
-							)}
+			{/* Header */}
+			<div class="flex flex-wrap items-start justify-between gap-4 mb-6">
+				<div>
+					<h2 id="model-benchmark-heading" class="text-3xl font-bold text-nvidia-black mb-1">
+						Benchmark
+					</h2>
+					<p class="text-sm text-nvidia-gray-500">
+						<span id="bench-engine-label">{firstEngine}</span>
+						{quantization && <>&nbsp;&middot;&nbsp;<span class="font-mono">{quantization}</span></>}
+						{isl != null && <>&nbsp;&middot;&nbsp;ISL&nbsp;{isl}&nbsp;/&nbsp;OSL&nbsp;{osl}</>}
+					</p>
+				</div>
+				<div class="flex flex-wrap items-center gap-2 self-start mt-1">
+					{/* Engine toggle — only rendered when >1 engine has data */}
+					{engineNames.length > 1 && (
+						<div
+							id="bench-engine-toggle"
+							class="inline-flex rounded-lg bg-nvidia-gray-100 p-0.5"
+							aria-label="Inference engine selector"
+						>
+							{engineNames.map((e) => (
+								<button
+									class={`px-4 py-1.5 text-xs font-semibold rounded-md transition-all duration-150 ${e === firstEngine ? 'bg-white text-nvidia-black shadow-sm' : 'text-nvidia-gray-600 hover:bg-nvidia-gray-200'}`}
+									data-engine={e}
+								>
+									{e}
+								</button>
+							))}
 						</div>
 					)}
-					{thor && (
-						<div class="rounded-xl border border-nvidia-gray-200 bg-nvidia-gray-50/80 p-6">
-							<h3 class="text-sm font-semibold text-nvidia-gray-500 uppercase tracking-wide mb-4">
-								Jetson Thor (vLLM)
-							</h3>
-							<div class="grid grid-cols-2 gap-4">
-								<div class="bg-white rounded-lg p-4 border border-nvidia-gray-100">
-									<div class="text-3xl font-bold text-nvidia-green text-center">{thor.concurrency1}</div>
-									<div class="text-sm text-nvidia-gray-600 mt-2 text-center">tokens/sec (concurrency 1)</div>
-								</div>
-								<div class="bg-white rounded-lg p-4 border border-nvidia-gray-100">
-									<div class="text-3xl font-bold text-nvidia-green text-center">{thor.concurrency8}</div>
-									<div class="text-sm text-nvidia-gray-600 mt-2 text-center">tokens/sec (concurrency 8)</div>
-								</div>
-							</div>
-							{thor.ttftMs != null && thor.ttftMs > 0 && (
-								<div class="mt-4 bg-white rounded-lg p-4 border border-nvidia-gray-100 text-center">
-									<div class="text-2xl font-bold text-nvidia-black">{thor.ttftMs} ms</div>
-									<div class="text-sm text-nvidia-gray-600 mt-1">Time to first token</div>
-								</div>
-							)}
-						</div>
-					)}
+					{/* Concurrency toggle */}
+					<div
+						class="inline-flex rounded-lg bg-nvidia-gray-100 p-0.5"
+						aria-label="Concurrency selector"
+					>
+						<button
+							id="bench-btn-c1"
+							class="px-4 py-1.5 text-xs font-semibold rounded-md bg-nvidia-green text-nvidia-black shadow-sm transition-all duration-150"
+						>
+							C=1
+						</button>
+						<button
+							id="bench-btn-c8"
+							class="px-4 py-1.5 text-xs font-semibold rounded-md text-nvidia-gray-600 hover:bg-nvidia-gray-200 transition-all duration-150"
+						>
+							C=8
+						</button>
+					</div>
 				</div>
 			</div>
-		</section>
-	)
-}
+
+			{/* Legend — only shown when series models are present */}
+			{seriesEntries.length > 0 && (
+				<div class="flex flex-wrap gap-x-5 gap-y-2 mb-5">
+					{allModels.map((m, i) => (
+						<div class="flex items-center gap-2">
+							<span
+								class="inline-block w-3.5 h-3.5 rounded-sm shrink-0"
+								style={`background:${modelColors[i]};border:1px solid rgba(0,0,0,0.1)`}
+							/>
+							<span class="text-xs text-nvidia-gray-700">
+								{m.name}
+								{i === 0 && <span class="text-nvidia-gray-400 ml-1">(this model)</span>}
+							</span>
+						</div>
+					))}
+				</div>
+			)}
+
+			{/* Chart container */}
+			<div class="relative overflow-x-auto rounded-xl border border-nvidia-gray-100 bg-white">
+				<div id="bench-chart" class="min-w-[400px]" />
+				<div
+					id="bench-tooltip"
+					class="hidden absolute pointer-events-none bg-nvidia-black text-white text-xs px-3 py-2 rounded-lg shadow-lg whitespace-nowrap z-10"
+					style="transform:translate(12px,-50%)"
+				/>
+			</div>
+			<div id="bench-no-data" class="hidden py-10 text-center text-sm text-nvidia-gray-400">
+				No data available for this combination.
+			</div>
+
+			<p class="mt-5 text-[11px] text-nvidia-gray-400">
+				C = concurrent requests. Results will vary with image, clocks, and workload.
+			</p>
+		</div>
+	</section>
+)}
+
+<script define:vars={{ benchData: clientData }}>
+	if (!benchData) return;
+
+	let conc = 'c1';
+	let currentEngine = benchData.engineNames[0];
+	let yAxisFixed = false;
+
+	const chartEl = document.getElementById('bench-chart');
+	const wrap = chartEl.parentElement;
+	const tooltip = document.getElementById('bench-tooltip');
+	const noDataEl = document.getElementById('bench-no-data');
+	const engineLabelEl = document.getElementById('bench-engine-label');
+
+	function getEffectiveModels() {
+		return benchData.models.map((m) => ({
+			name: m.name,
+			color: m.color,
+			isMain: m.isMain,
+			c1: m.engines[currentEngine]?.c1 ?? {},
+			c8: m.engines[currentEngine]?.c8 ?? {},
+		}));
+	}
+
+	function niceMax(max) {
+		if (max <= 0) return 100;
+		const p = max * 1.15;
+		const exp = Math.floor(Math.log10(p));
+		const mag = Math.pow(10, exp);
+		const n = p / mag;
+		let nice;
+		if (n <= 1.5) nice = 1.5;
+		else if (n <= 2) nice = 2;
+		else if (n <= 2.5) nice = 2.5;
+		else if (n <= 3) nice = 3;
+		else if (n <= 4) nice = 4;
+		else if (n <= 5) nice = 5;
+		else if (n <= 7.5) nice = 7.5;
+		else nice = 10;
+		return nice * mag;
+	}
+
+	// Global Y max across all engines × concurrencies × products (used when axis is locked)
+	const globalYMax = niceMax(Math.max(
+		...benchData.models.flatMap((m) =>
+			benchData.engineNames.flatMap((eng) =>
+				benchData.products.map((p) => Math.max(
+					m.engines[eng]?.c1[p.id] ?? 0,
+					m.engines[eng]?.c8[p.id] ?? 0,
+				))
+			)
+		),
+		1,
+	));
+
+	function render() {
+		const models = getEffectiveModels();
+		const key = conc; // 'c1' | 'c8'
+
+		const activeProducts = benchData.products.filter((p) =>
+			models.some((m) => m[key][p.id] != null),
+		);
+
+		if (activeProducts.length === 0) {
+			chartEl.innerHTML = '';
+			noDataEl.classList.remove('hidden');
+			updateBtns();
+			return;
+		}
+		noDataEl.classList.add('hidden');
+
+		const allVals = models.flatMap((m) =>
+			activeProducts.map((p) => m[key][p.id] ?? 0),
+		);
+		const yMax = yAxisFixed ? globalYMax : niceMax(Math.max(...allVals, 1));
+
+		// Layout — mt=28 reserves space above the chart area for the Y-lock button
+		const ml = 62, mr = 24, mt = 28, mb = 68;
+		const N = activeProducts.length;
+		const M = models.length;
+
+		const groupW = Math.max(140, Math.min(260, 1100 / N));
+		const W = ml + N * groupW + mr;
+		const chartH = 320;
+		const H = mt + chartH + mb;
+
+		const barW = Math.min(44, Math.max(16, (groupW * 0.52) / M));
+		const barGap = Math.max(3, barW * 0.14);
+		const groupBarSpan = M * barW + (M - 1) * barGap;
+
+		const yScale = (v) => mt + chartH - (v / yMax) * chartH;
+		const groupCx = (i) => ml + (i + 0.5) * groupW;
+		const barLeft = (gi, bi) =>
+			groupCx(gi) - groupBarSpan / 2 + bi * (barW + barGap);
+
+		let s = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg"
+			style="display:block;width:100%;max-width:${W}px;height:auto;margin:0 auto;font-family:system-ui,-apple-system,sans-serif">
+			<style>
+				.bbar{transform-box:fill-box;transform-origin:50% 100%;animation:bbar-in 0.4s cubic-bezier(.25,.46,.45,.94) both}
+				@keyframes bbar-in{from{transform:scaleY(0)}}
+			</style>`;
+
+		// Lock button — positioned in top margin just left of the Y axis top
+		// Open padlock = auto-scale (default); closed padlock = Y axis fixed
+		const lbX = ml - 20, lbY = 5, lbS = 18;
+		const lkCol = yAxisFixed ? '#374151' : '#C4C4C4';
+		const lkBg  = yAxisFixed ? '#F3F4F6' : 'white';
+		const lkTip = yAxisFixed ? 'Auto-scale Y axis' : 'Fix Y-axis scale';
+		const lkShackle = yAxisFixed
+			? `M4 7.5V5a3 3 0 0 1 6 0v2.5`
+			: `M4 7.5V5a3 3 0 0 1 6 0`;
+		s += `<g class="bench-lock-btn" style="cursor:pointer">
+			<rect x="${lbX}" y="${lbY}" width="${lbS}" height="${lbS}" rx="3" fill="${lkBg}" stroke="#E5E7EB"/>
+			<g transform="translate(${lbX + 2.5},${lbY + 1.5})" stroke="${lkCol}" stroke-linecap="round" stroke-linejoin="round" fill="none" pointer-events="none">
+				<rect x="0.5" y="7" width="12" height="8.5" rx="1.5" fill="${lkCol}" stroke="none"/>
+				<path d="${lkShackle}" stroke-width="1.5"/>
+				<circle cx="6.5" cy="11.5" r="1.1" fill="${lkBg}" stroke="none"/>
+			</g>
+			<rect x="${lbX}" y="${lbY}" width="${lbS}" height="${lbS}" rx="3" fill="transparent" data-tip="${lkTip}"/>
+		</g>`;
+
+		// Y gridlines + labels
+		const yTicks = 5;
+		const yStep = yMax / yTicks;
+		for (let i = 0; i <= yTicks; i++) {
+			const v = Math.round(yStep * i);
+			const cy = yScale(v);
+			s += `<line x1="${ml}" y1="${cy}" x2="${ml + N * groupW}" y2="${cy}" stroke="${i === 0 ? '#E5E7EB' : '#F3F4F6'}"/>`;
+			s += `<text x="${ml - 7}" y="${cy}" text-anchor="end" dominant-baseline="middle" fill="#9CA3AF" font-size="11">${v}</text>`;
+		}
+
+		// Y-axis title
+		s += `<text x="12" y="${mt + chartH / 2}" text-anchor="middle" dominant-baseline="middle" fill="#9CA3AF" font-size="11" transform="rotate(-90,12,${mt + chartH / 2})">${benchData.unit}</text>`;
+
+		// Axis lines
+		s += `<line x1="${ml}" y1="${mt}" x2="${ml}" y2="${mt + chartH}" stroke="#E5E7EB"/>`;
+		s += `<line x1="${ml}" y1="${mt + chartH}" x2="${ml + N * groupW}" y2="${mt + chartH}" stroke="#E5E7EB"/>`;
+
+		// Groups
+		activeProducts.forEach((prod, gi) => {
+			const cx = groupCx(gi);
+
+			if (gi > 0) {
+				s += `<line x1="${ml + gi * groupW}" y1="${mt}" x2="${ml + gi * groupW}" y2="${mt + chartH}" stroke="#F9FAFB" stroke-dasharray="3 3"/>`;
+			}
+
+			const parts = prod.label.split('\n');
+			const ly = mt + chartH + 18;
+			s += `<text x="${cx}" y="${ly}" text-anchor="middle" fill="#6B7280" font-size="12" font-weight="500">${parts[0]}</text>`;
+			if (parts[1]) {
+				s += `<text x="${cx}" y="${ly + 15}" text-anchor="middle" fill="#6B7280" font-size="12">${parts[1]}</text>`;
+			}
+
+			models.forEach((model, bi) => {
+				const val = model[key][prod.id];
+				if (val == null) return;
+
+				const x = barLeft(gi, bi);
+				const bh = (val / yMax) * chartH;
+				const by = mt + chartH - bh;
+				const rx = Math.min(3, barW / 5);
+
+				s += `<rect x="${x + 1}" y="${by + 2}" width="${barW}" height="${bh}" fill="black" opacity="0.05" rx="${rx}"/>`;
+				s += `<rect x="${x}" y="${by}" width="${barW}" height="${bh}" fill="${model.color}" rx="${rx}"
+					class="bbar" style="cursor:pointer;animation-delay:${bi * 40}ms"
+					data-tip="${model.name}: ${val} ${benchData.unit}"/>`;
+				if (bh > 20) {
+					s += `<text x="${x + barW / 2}" y="${by - 4}" text-anchor="middle"
+						fill="${model.isMain ? '#374151' : '#9CA3AF'}" font-size="9.5" font-weight="${model.isMain ? '600' : '400'}">${val}</text>`;
+				}
+			});
+		});
+
+		s += '</svg>';
+		chartEl.innerHTML = s;
+		updateBtns();
+		attachHover();
+	}
+
+	function attachHover() {
+		chartEl.querySelectorAll('[data-tip]').forEach((el) => {
+			el.addEventListener('mouseenter', (e) => {
+				if (!el.closest('.bench-lock-btn')) el.setAttribute('opacity', '0.82');
+				tooltip.textContent = el.dataset.tip;
+				tooltip.classList.remove('hidden');
+				posTooltip(e);
+			});
+			el.addEventListener('mousemove', posTooltip);
+			el.addEventListener('mouseleave', () => {
+				el.removeAttribute('opacity');
+				tooltip.classList.add('hidden');
+			});
+		});
+	}
+
+	function posTooltip(e) {
+		const r = wrap.getBoundingClientRect();
+		tooltip.style.left = e.clientX - r.left + 14 + 'px';
+		tooltip.style.top = e.clientY - r.top + 'px';
+	}
+
+	function updateBtns() {
+		const onC = 'px-4 py-1.5 text-xs font-semibold rounded-md bg-nvidia-green text-nvidia-black shadow-sm transition-all duration-150';
+		const offC = 'px-4 py-1.5 text-xs font-semibold rounded-md text-nvidia-gray-600 hover:bg-nvidia-gray-200 transition-all duration-150';
+		document.getElementById('bench-btn-c1').className = conc === 'c1' ? onC : offC;
+		document.getElementById('bench-btn-c8').className = conc === 'c8' ? onC : offC;
+
+		const onE = 'px-4 py-1.5 text-xs font-semibold rounded-md bg-white text-nvidia-black shadow-sm transition-all duration-150';
+		const offE = 'px-4 py-1.5 text-xs font-semibold rounded-md text-nvidia-gray-600 hover:bg-nvidia-gray-200 transition-all duration-150';
+		document.querySelectorAll('#bench-engine-toggle [data-engine]').forEach((btn) => {
+			btn.className = btn.dataset.engine === currentEngine ? onE : offE;
+		});
+
+		if (engineLabelEl) engineLabelEl.textContent = currentEngine;
+	}
+
+	document.getElementById('bench-btn-c1').addEventListener('click', () => { conc = 'c1'; render(); });
+	document.getElementById('bench-btn-c8').addEventListener('click', () => { conc = 'c8'; render(); });
+
+	document.querySelectorAll('#bench-engine-toggle [data-engine]').forEach((btn) => {
+		btn.addEventListener('click', () => { currentEngine = btn.dataset.engine; render(); });
+	});
+
+	// Lock button uses event delegation since SVG is rebuilt on each render
+	chartEl.addEventListener('click', (e) => {
+		if (e.target.closest('.bench-lock-btn')) { yAxisFixed = !yAxisFixed; render(); }
+	});
+
+	render();
+</script>

@@ -43,6 +43,9 @@ supported_inference_engines:
         --runtime=nvidia --network host \
         ghcr.io/nvidia-ai-iot/vllm:latest-jetson-thor \
         vllm serve RedHatAI/Qwen3-4B-quantized.w4a16
+benchmark_key: "Qwen 3 4B"
+benchmark_series:
+  - "Qwen 3 8B"
 ---
 
 Qwen3 is Alibaba Cloud's latest generation of large language models, offering state-of-the-art performance across a wide range of tasks. The Qwen3 4B model provides an excellent balance of capability and efficiency for edge deployment.

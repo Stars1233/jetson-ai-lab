@@ -63,6 +63,10 @@ serving:
           -v $HOME/.cache/huggingface:/root/.cache/huggingface \
           ghcr.io/nvidia-ai-iot/llama_cpp:latest-jetson-thor \
           llama-server -hf unsloth/gemma-4-E2B-it-GGUF:Q4_K_S
+benchmark_key: "Gemma 4 E2B"
+benchmark_series:
+  - "Gemma 4 26B-A4B"
+  - "Gemma 4 31B"
 ---
 
 Gemma 4 E2B is the smallest variant in the Gemma 4 family. Google positions E2B as an edge-first model for low-latency, low-memory deployments where efficiency matters more than absolute model size.

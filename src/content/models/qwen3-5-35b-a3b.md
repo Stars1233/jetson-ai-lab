@@ -51,6 +51,9 @@ benchmark:
     concurrency1: 35
     concurrency8: 125
     ttftMs: 0
+benchmark_key: "Qwen3.5-35B-A3B"
+benchmark_series:
+  - "Qwen3.5-27B"
 ---
 
 Qwen3.5 35B-A3B is a Mixture-of-Experts (MoE) model from Alibaba Cloud's Qwen3.5 family. It features 35 billion total parameters with only 3 billion active during inference, delivering strong performance with excellent efficiency on edge devices.
