@@ -1035,11 +1035,12 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
               });
               var label = copyBtn.querySelector('[data-run-copy-label]');
               var original = label ? (label.textContent || '') : (copyBtn.textContent || '');
+              var resetLabel = copyBtn.getAttribute('data-run-copy-reset-label') || 'Copy serve command';
               if (label) label.textContent = 'Copied';
               else copyBtn.textContent = 'Copied';
               setTimeout(function () {
-                if (label) label.textContent = original || 'Copy command';
-                else copyBtn.textContent = original || 'Copy';
+                if (label) label.textContent = original || resetLabel;
+                else copyBtn.textContent = original || resetLabel;
               }, 1200);
             }
             return;
