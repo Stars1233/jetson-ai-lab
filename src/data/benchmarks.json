@@ -53,6 +53,16 @@
             "concurrency1": { "t5000": null, "t4000": null, "agx_orin_64gb": 20, "orin_nx_16gb": 11, "orin_nano_8gb": null },
             "concurrency8": { "t5000": null, "t4000": null, "agx_orin_64gb": 85, "orin_nx_16gb": 60, "orin_nano_8gb": null }
           }
+        },
+        "SGLang": {
+          "NVFP4": {
+            "concurrency1": { "t5000": 33, "t4000": 26, "agx_orin_64gb": null, "orin_nx_16gb": null, "orin_nano_8gb": null },
+            "concurrency8": { "t5000": 120, "t4000": 98, "agx_orin_64gb": null, "orin_nx_16gb": null, "orin_nano_8gb": null }
+          },
+          "W4A16": {
+            "concurrency1": { "t5000": null, "t4000": null, "agx_orin_64gb": 22, "orin_nx_16gb": 12, "orin_nano_8gb": null },
+            "concurrency8": { "t5000": null, "t4000": null, "agx_orin_64gb": 102, "orin_nx_16gb": 72, "orin_nano_8gb": null }
+          }
         }
       }
     },
@@ -88,6 +98,46 @@
           "Q4_K_M GGUF": {
             "concurrency1": { "t5000": 56, "t4000": null, "agx_orin_64gb": 43, "orin_nx_16gb": 22, "orin_nano_8gb": 18 },
             "concurrency8": { "t5000": null, "t4000": null, "agx_orin_64gb": null, "orin_nx_16gb": null, "orin_nano_8gb": null }
+          }
+        }
+      }
+    },
+    {
+      "family": "Nemotron",
+      "name": "Nemotron Nano 3 Omni",
+      "releaseDate": "2026-04-28",
+      "capabilities": { "language": true, "vision": true, "audio": true, "vla": false },
+      "isl": 2048,
+      "osl": 128,
+      "engines": {
+        "vLLM": {
+          "BF16": {
+            "concurrency1": { "t5000": 35, "t4000": 28, "agx_orin_64gb": 18, "orin_nx_16gb": null, "orin_nano_8gb": null },
+            "concurrency8": { "t5000": 120, "t4000": 95, "agx_orin_64gb": 58, "orin_nx_16gb": null, "orin_nano_8gb": null }
+          },
+          "FP8": {
+            "concurrency1": { "t5000": 52, "t4000": 42, "agx_orin_64gb": 28, "orin_nx_16gb": 12, "orin_nano_8gb": null },
+            "concurrency8": { "t5000": 195, "t4000": 155, "agx_orin_64gb": 92, "orin_nx_16gb": 28, "orin_nano_8gb": null }
+          },
+          "NVFP4": {
+            "concurrency1": { "t5000": 78, "t4000": 62, "agx_orin_64gb": null, "orin_nx_16gb": null, "orin_nano_8gb": null },
+            "concurrency8": { "t5000": 310, "t4000": 248, "agx_orin_64gb": null, "orin_nx_16gb": null, "orin_nano_8gb": null }
+          }
+        },
+        "llama.cpp": {
+          "Q4_K_M": {
+            "concurrency1": { "t5000": 65, "t4000": 50, "agx_orin_64gb": 38, "orin_nx_16gb": 18, "orin_nano_8gb": 10 },
+            "concurrency8": { "t5000": null, "t4000": null, "agx_orin_64gb": null, "orin_nx_16gb": null, "orin_nano_8gb": null }
+          }
+        },
+        "SGLang": {
+          "FP8": {
+            "concurrency1": { "t5000": 57, "t4000": 46, "agx_orin_64gb": 31, "orin_nx_16gb": 13, "orin_nano_8gb": null },
+            "concurrency8": { "t5000": 228, "t4000": 182, "agx_orin_64gb": 108, "orin_nx_16gb": 33, "orin_nano_8gb": null }
+          },
+          "NVFP4": {
+            "concurrency1": { "t5000": 84, "t4000": 67, "agx_orin_64gb": null, "orin_nx_16gb": null, "orin_nano_8gb": null },
+            "concurrency8": { "t5000": 365, "t4000": 292, "agx_orin_64gb": null, "orin_nx_16gb": null, "orin_nano_8gb": null }
           }
         }
       }
@@ -149,6 +199,16 @@
             "concurrency1": { "t5000": null, "t4000": null, "agx_orin_64gb": 50, "orin_nx_16gb": 17, "orin_nano_8gb": null },
             "concurrency8": { "t5000": null, "t4000": null, "agx_orin_64gb": 222, "orin_nx_16gb": 35, "orin_nano_8gb": null }
           }
+        },
+        "SGLang": {
+          "NVFP4": {
+            "concurrency1": { "t5000": 74, "t4000": 60, "agx_orin_64gb": null, "orin_nx_16gb": null, "orin_nano_8gb": null },
+            "concurrency8": { "t5000": 368, "t4000": 305, "agx_orin_64gb": null, "orin_nx_16gb": null, "orin_nano_8gb": null }
+          },
+          "W4A16": {
+            "concurrency1": { "t5000": null, "t4000": null, "agx_orin_64gb": 54, "orin_nx_16gb": 19, "orin_nano_8gb": null },
+            "concurrency8": { "t5000": null, "t4000": null, "agx_orin_64gb": 263, "orin_nx_16gb": 41, "orin_nano_8gb": null }
+          }
         }
       }
     },
@@ -168,6 +228,16 @@
           "W4A16": {
             "concurrency1": { "t5000": null, "t4000": null, "agx_orin_64gb": 30, "orin_nx_16gb": 9, "orin_nano_8gb": null },
             "concurrency8": { "t5000": null, "t4000": null, "agx_orin_64gb": 157, "orin_nx_16gb": 22, "orin_nano_8gb": null }
+          }
+        },
+        "SGLang": {
+          "NVFP4": {
+            "concurrency1": { "t5000": 44, "t4000": 38, "agx_orin_64gb": null, "orin_nx_16gb": null, "orin_nano_8gb": null },
+            "concurrency8": { "t5000": 285, "t4000": 238, "agx_orin_64gb": null, "orin_nx_16gb": null, "orin_nano_8gb": null }
+          },
+          "W4A16": {
+            "concurrency1": { "t5000": null, "t4000": null, "agx_orin_64gb": 32, "orin_nx_16gb": 10, "orin_nano_8gb": null },
+            "concurrency8": { "t5000": null, "t4000": null, "agx_orin_64gb": 186, "orin_nx_16gb": 26, "orin_nano_8gb": null }
           }
         }
       }
