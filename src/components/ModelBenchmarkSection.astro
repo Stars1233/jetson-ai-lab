@@ -215,10 +215,10 @@ const ENGINE_COLORS_MAP: Record<string, string> = {
 	// Bar fill color per quantization tier
 	function getBarColor(quant) {
 		const q = quant.toUpperCase();
-		if (/Q[2-8]_K|Q[2-8]_[0-9]|IQ[2-4]/.test(q)) return '#7C6FA0';              // GGUF quants → muted gray-purple
-		if (/FP4|INT4|W4|NF4|Q4|4.?BIT|AWQ|NVFP4|MXFP4/.test(q)) return '#A855F7'; // 4-bit → pale purple
-		if (/FP8|INT8|W8|Q8/.test(q)) return '#76B900';                               // 8-bit → NVIDIA green
-		return '#006666';                                                               // 16-bit → dark teal
+		if (/NVFP4/.test(q)) return '#A855F7';                                                          // NVFP4 → vivid purple (Blackwell tensor-core accelerated)
+		if (/FP4|INT4|W4|NF4|Q[2-8]_K|Q[2-8]_[0-9]|IQ[2-4]|Q4|4.?BIT|AWQ|MXFP4/.test(q)) return '#7C6FA0'; // other 4-bit → dull gray-purple
+		if (/FP8|INT8|W8|Q8/.test(q)) return '#76B900';                                                 // 8-bit → NVIDIA green
+		return '#006666';                                                                                 // 16-bit → dark teal
 	}
 
 	// Build flat bar list: color encodes quant tier directly

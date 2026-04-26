@@ -37,10 +37,10 @@ const benchmarkSeries = (data.benchmark_series ?? [])
 // Per-token precision pill — colors match benchmark bar palette
 function precisionPill(token: string) {
   const p = token.toUpperCase().trim();
-  if (/Q[2-8]_K|Q[2-8]_[0-9]|IQ[2-4]/.test(p))
-    return { bg: 'rgba(124,111,160,0.15)', border: '#7C6FA0', color: '#B8ADCC' }; // muted gray-purple (GGUF)
-  if (/FP4|INT4|W4|NF4|Q4|4[_\-]?BIT|AWQ|NVFP4|MXFP4/.test(p))
-    return { bg: 'rgba(168,85,247,0.15)', border: '#A855F7', color: '#D8B4FE' };  // pale purple (4-bit)
+  if (/NVFP4/.test(p))
+    return { bg: 'rgba(168,85,247,0.15)', border: '#A855F7', color: '#D8B4FE' };  // vivid purple (Blackwell-accelerated)
+  if (/FP4|INT4|W4|NF4|Q[2-8]_K|Q[2-8]_[0-9]|IQ[2-4]|Q4|4[_\-]?BIT|AWQ|MXFP4/.test(p))
+    return { bg: 'rgba(124,111,160,0.15)', border: '#7C6FA0', color: '#B8ADCC' }; // dull gray-purple (other 4-bit)
   if (/FP8|INT8|W8|Q8/.test(p))
     return { bg: 'rgba(118,185,0,0.15)', border: '#76B900', color: '#AADD44' };   // NVIDIA green (8-bit)
   return { bg: 'rgba(0,102,102,0.15)', border: '#008080', color: '#4DD9D9' };     // teal (16-bit+)
