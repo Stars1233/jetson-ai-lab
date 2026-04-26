@@ -13,13 +13,26 @@ precision: "NVFP4"
 model_size: "24GB"
 hf_checkpoint: "Qwen/Qwen3.6-35B-A3B"
 huggingface_url: "https://huggingface.co/Qwen/Qwen3.6-35B-A3B"
-minimum_jetson: "AGX Thor"
+minimum_jetson: "Orin AGX"
+precision: "NVFP4 / AWQ"
 supported_inference_engines:
   - engine: "vLLM"
     type: "Container"
     modules_supported:
       - thor_t5000
       - thor_t4000
+      - orin_agx_64
+    serve_command_orin: |-
+      sudo docker run -it --rm --pull always \
+        --runtime=nvidia --network host \
+        ghcr.io/nvidia-ai-iot/vllm:latest-jetson-orin \
+        vllm serve cyankiwi/Qwen3.6-35B-A3B-AWQ-4bit \
+          --gpu-memory-utilization 0.8 \
+          --enable-prefix-caching \
+          --reasoning-parser qwen3 \
+          --enable-auto-tool-choice \
+          --tool-call-parser qwen3_coder \
+          --max-model-len 4096
     serve_command_thor: |-
       sudo docker run -it --rm --pull always \
         --runtime=nvidia --network host \
@@ -31,6 +44,10 @@ supported_inference_engines:
           --enable-auto-tool-choice \
           --tool-call-parser qwen3_coder"
 benchmark:
+  orin:
+    concurrency1: 30
+    concurrency8: 133
+    ttftMs: 0
   thor:
     concurrency1: 42
     concurrency8: 136
@@ -55,6 +72,26 @@ Qwen3.6 35B-A3B is a Mixture-of-Experts (MoE) model from Alibaba Cloud's Qwen3.6
 
 ## Running with vLLM
 
+<div class="device-tabs">
+<div class="device-tab-bar">
+<button class="device-tab active" data-target="orin">Jetson Orin</button>
+<button class="device-tab" data-target="thor">Jetson Thor</button>
+</div>
+<div class="device-panel" data-panel="orin">
+
+```bash
+sudo docker run -it --rm --pull always --runtime=nvidia --network host \
+  ghcr.io/nvidia-ai-iot/vllm:latest-jetson-orin \
+  vllm serve cyankiwi/Qwen3.6-35B-A3B-AWQ-4bit \
+    --gpu-memory-utilization 0.8 --enable-prefix-caching \
+    --reasoning-parser qwen3 \
+    --enable-auto-tool-choice --tool-call-parser qwen3_coder \
+    --max-model-len 4096
+```
+
+</div>
+<div class="device-panel" data-panel="thor" style="display:none">
+
 ```bash
 sudo docker run -it --rm --pull always --runtime=nvidia --network host \
   vllm/vllm-openai:nightly-aarch64 \
@@ -63,6 +100,9 @@ sudo docker run -it --rm --pull always --runtime=nvidia --network host \
     --reasoning-parser qwen3 \
     --enable-auto-tool-choice --tool-call-parser qwen3_coder"
 ```
+
+</div>
+</div>
 
 ## Speculative Decoding with MTP
 
@@ -83,3 +123,4 @@ This model supports **Multi-Token Prediction (MTP)** speculative decoding, which
 
 - [Hugging Face Model](https://huggingface.co/Qwen/Qwen3.6-35B-A3B) - Original model weights
 - [NVFP4 Checkpoint (Thor)](https://huggingface.co/RedHatAI/Qwen3.6-35B-A3B-NVFP4) - Quantized for Jetson Thor
+- [AWQ Checkpoint (Orin)](https://huggingface.co/cyankiwi/Qwen3.6-35B-A3B-AWQ-4bit) - Quantized for Jetson Orin

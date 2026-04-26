@@ -262,8 +262,8 @@
       "isl": 2048,
       "osl": 128,
       "performance": {
-        "concurrency1": { "t5000": 42, "t4000": null, "agx_orin_64gb": null, "orin_nx_16gb": null, "orin_nano_8gb": null },
-        "concurrency8": { "t5000": 136, "t4000": null, "agx_orin_64gb": null, "orin_nx_16gb": null, "orin_nano_8gb": null }
+        "concurrency1": { "t5000": 42, "t4000": null, "agx_orin_64gb": 30, "orin_nx_16gb": null, "orin_nano_8gb": null },
+        "concurrency8": { "t5000": 136, "t4000": null, "agx_orin_64gb": 133, "orin_nx_16gb": null, "orin_nano_8gb": null }
       }
     },
     {
