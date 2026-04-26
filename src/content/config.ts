@@ -123,6 +123,12 @@ const modelsSchema = z.object({
 			python_by_module: z.record(z.string()).optional(),
 		})
 		.optional(),
+	benchmark: z
+		.object({
+			orin: benchmarkPlatformSchema.optional(),
+			thor: benchmarkPlatformSchema.optional(),
+		})
+		.optional(),
 });
 
 export type ModelCollectionData = z.infer<typeof modelsSchema>;
