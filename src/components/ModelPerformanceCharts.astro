@@ -112,10 +112,22 @@ const { products, models, notes } = benchmarks;
   function render() {
     updateButtons();
 
+    function bestPerf(m: any, conc: string, prod: string): number | null {
+      if (m.performance) return m.performance[conc]?.[prod] ?? null;
+      let best: number | null = null;
+      for (const quants of Object.values(m.engines ?? {})) {
+        for (const qd of Object.values(quants as any)) {
+          const v = (qd as any)[conc]?.[prod] ?? null;
+          if (v !== null && (best === null || v > best)) best = v;
+        }
+      }
+      return best;
+    }
+
     const items = data.models
       .map((m: any) => ({
         model: m,
-        value: m.performance[concurrency][product] as number | null,
+        value: bestPerf(m, concurrency, product),
         date: parseDate(m.releaseDate),
       }))
       .filter((i: any) => i.value !== null && i.value !== undefined);
