@@ -9,17 +9,17 @@ const PRODUCTS = [
 
 type ProductId = (typeof PRODUCTS)[number]['id'];
 
-interface EngineData {
+interface QuantData {
 	concurrency1: Partial<Record<ProductId, number | null>>;
 	concurrency8: Partial<Record<ProductId, number | null>>;
 }
 
 interface BenchmarkEntry {
 	name: string;
-	quantization: string;
 	isl: number | null;
 	osl: number | null;
-	engines: Record<string, EngineData>;
+	/** engines[engineName][quantName] = QuantData */
+	engines: Record<string, Record<string, QuantData>>;
 }
 
 interface Props {
@@ -28,7 +28,7 @@ interface Props {
 }
 
 const { entry, seriesEntries = [] } = Astro.props;
-const { quantization, isl, osl } = entry;
+const { isl, osl } = entry;
 const unit = isl !== null ? 'tok/s' : 'inf/s';
 
 const allModels = [entry, ...seriesEntries];
@@ -49,11 +49,13 @@ for (const m of allModels) {
 }
 
 const hasAnyData = allModels.some((m) =>
-	Object.values(m.engines).some((eng) =>
-		PRODUCTS.some(
-			(p) =>
-				(eng.concurrency1[p.id] ?? null) !== null ||
-				(eng.concurrency8[p.id] ?? null) !== null,
+	Object.values(m.engines).some((quants) =>
+		Object.values(quants).some((qd) =>
+			PRODUCTS.some(
+				(p) =>
+					(qd.concurrency1[p.id] ?? null) !== null ||
+					(qd.concurrency8[p.id] ?? null) !== null,
+			),
 		),
 	),
 );
@@ -67,12 +69,17 @@ const clientData = hasAnyData
 				color: modelColors[i],
 				isMain: i === 0,
 				engines: Object.fromEntries(
-					Object.entries(m.engines).map(([eng, data]) => [
+					Object.entries(m.engines).map(([eng, quants]) => [
 						eng,
-						{
-							c1: Object.fromEntries(PRODUCTS.map((p) => [p.id, data.concurrency1[p.id] ?? null])),
-							c8: Object.fromEntries(PRODUCTS.map((p) => [p.id, data.concurrency8[p.id] ?? null])),
-						},
+						Object.fromEntries(
+							Object.entries(quants).map(([quant, qd]) => [
+								quant,
+								{
+									c1: Object.fromEntries(PRODUCTS.map((p) => [p.id, qd.concurrency1[p.id] ?? null])),
+									c8: Object.fromEntries(PRODUCTS.map((p) => [p.id, qd.concurrency8[p.id] ?? null])),
+								},
+							]),
+						),
 					]),
 				),
 			})),
@@ -81,6 +88,16 @@ const clientData = hasAnyData
 	: null;
 
 const firstEngine = engineNames[0] ?? '';
+// For subtitle: quant names of first engine of main entry
+const firstEngineQuants = Object.keys(entry.engines[firstEngine] ?? {});
+const firstEngineQuantLabel = firstEngineQuants.join(' / ');
+
+const ENGINE_COLORS_MAP: Record<string, string> = {
+	'vLLM':      '#30a3ff',
+	'SGLang':    '#d55816',
+	'llama.cpp': '#8899A6',
+	'Edge-LLM':  '#006666',
+};
 ---
 
 {hasAnyData && (
@@ -99,66 +116,59 @@ const firstEngine = engineNames[0] ?? '';
 					</h2>
 					<p class="text-sm text-nvidia-gray-500">
 						<span id="bench-engine-label">{firstEngine}</span>
-						{quantization && <>&nbsp;&middot;&nbsp;<span class="font-mono">{quantization}</span></>}
+						<span id="bench-quant-wrapper" class={firstEngineQuantLabel ? '' : 'hidden'}>
+							&nbsp;&middot;&nbsp;<span id="bench-quant-label" class="font-mono">{firstEngineQuantLabel}</span>
+						</span>
 						{isl != null && <>&nbsp;&middot;&nbsp;ISL&nbsp;{isl}&nbsp;/&nbsp;OSL&nbsp;{osl}</>}
 					</p>
 				</div>
-				<div class="flex flex-wrap items-center gap-2 self-start mt-1">
-					{/* Engine toggle — always shown so users know which engine the benchmark used */}
+				<div class="flex flex-wrap justify-end items-center gap-x-4 gap-y-2 self-start mt-1">
+					{/* Engine toggle */}
 					{engineNames.length > 0 && (
-						<div
-							id="bench-engine-toggle"
-							class="inline-flex rounded-lg bg-nvidia-gray-100 p-0.5"
-							aria-label="Inference engine selector"
-						>
-							{engineNames.map((e) => (
-								<button
-									class={`px-4 py-1.5 text-xs font-semibold rounded-md transition-all duration-150 ${e === firstEngine ? 'bg-white text-nvidia-black shadow-sm' : 'text-nvidia-gray-600 hover:bg-nvidia-gray-200'}`}
-									data-engine={e}
-								>
-									{e}
-								</button>
-							))}
+						<div class="flex items-center gap-2">
+							<span class="text-xs text-nvidia-gray-400 font-medium">Engine</span>
+							<div
+								id="bench-engine-toggle"
+								class="inline-flex rounded-lg bg-nvidia-gray-100 p-0.5"
+								aria-label="Inference engine selector"
+							>
+								{engineNames.map((e) => (
+									<button
+										class={`px-4 py-1.5 text-xs font-semibold rounded-md transition-all duration-150 ${e === firstEngine ? 'bg-nvidia-black text-white shadow-sm' : 'text-nvidia-gray-600 hover:bg-nvidia-gray-200'}`}
+										data-engine={e}
+									>
+										<span style={`border-bottom: 3px solid ${ENGINE_COLORS_MAP[e] ?? '#888888'}; padding-bottom: 1px;`}>{e}</span>
+									</button>
+								))}
+							</div>
 						</div>
 					)}
 					{/* Concurrency toggle */}
-					<div
-						class="inline-flex rounded-lg bg-nvidia-gray-100 p-0.5"
-						aria-label="Concurrency selector"
-					>
-						<button
-							id="bench-btn-c1"
-							class="px-4 py-1.5 text-xs font-semibold rounded-md bg-nvidia-green text-nvidia-black shadow-sm transition-all duration-150"
+					<div class="flex items-center gap-2">
+						<span class="text-xs text-nvidia-gray-400 font-medium">Concurrency</span>
+						<div
+							class="inline-flex rounded-lg bg-nvidia-gray-100 p-0.5"
+							aria-label="Concurrency selector"
 						>
-							C=1
-						</button>
-						<button
-							id="bench-btn-c8"
-							class="px-4 py-1.5 text-xs font-semibold rounded-md text-nvidia-gray-600 hover:bg-nvidia-gray-200 transition-all duration-150"
-						>
-							C=8
-						</button>
+							<button
+								id="bench-btn-c1"
+								class="px-4 py-1.5 text-xs font-semibold rounded-md bg-nvidia-green text-nvidia-black shadow-sm transition-all duration-150"
+							>
+								C=1
+							</button>
+							<button
+								id="bench-btn-c8"
+								class="px-4 py-1.5 text-xs font-semibold rounded-md text-nvidia-gray-600 hover:bg-nvidia-gray-200 transition-all duration-150"
+							>
+								C=8
+							</button>
+						</div>
 					</div>
 				</div>
 			</div>
 
-			{/* Legend — only shown when series models are present */}
-			{seriesEntries.length > 0 && (
-				<div class="flex flex-wrap gap-x-5 gap-y-2 mb-5">
-					{allModels.map((m, i) => (
-						<div class="flex items-center gap-2">
-							<span
-								class="inline-block w-3.5 h-3.5 rounded-sm shrink-0"
-								style={`background:${modelColors[i]};border:1px solid rgba(0,0,0,0.1)`}
-							/>
-							<span class="text-xs text-nvidia-gray-700">
-								{m.name}
-								{i === 0 && <span class="text-nvidia-gray-400 ml-1">(this model)</span>}
-							</span>
-						</div>
-					))}
-				</div>
-			)}
+			{/* Legend — JS-rendered: quant swatches + series model names */}
+			<div id="bench-legend" class="flex flex-wrap gap-x-5 gap-y-2 mb-5 hidden" />
 
 			{/* Chart container */}
 			<div class="relative overflow-x-auto rounded-xl border border-nvidia-gray-100 bg-white">
@@ -190,7 +200,7 @@ const firstEngine = engineNames[0] ?? '';
 	const ENGINE_COLORS = {
 		'vLLM':      '#30a3ff',
 		'SGLang':    '#d55816',
-		'llama.cpp': '#1b1f20',
+		'llama.cpp': '#8899A6',
 		'Edge-LLM':  '#006666',
 	};
 
@@ -199,15 +209,36 @@ const firstEngine = engineNames[0] ?? '';
 	const tooltip = document.getElementById('bench-tooltip');
 	const noDataEl = document.getElementById('bench-no-data');
 	const engineLabelEl = document.getElementById('bench-engine-label');
+	const quantLabelEl = document.getElementById('bench-quant-label');
+	const quantWrapperEl = document.getElementById('bench-quant-wrapper');
 
-	function getEffectiveModels() {
-		return benchData.models.map((m) => ({
-			name: m.name,
-			color: m.color,
-			isMain: m.isMain,
-			c1: m.engines[currentEngine]?.c1 ?? {},
-			c8: m.engines[currentEngine]?.c8 ?? {},
-		}));
+	// Bar fill color per quantization tier
+	function getBarColor(quant) {
+		const q = quant.toUpperCase();
+		if (/Q[2-8]_K|Q[2-8]_[0-9]|IQ[2-4]/.test(q)) return '#7C6FA0';              // GGUF quants → muted gray-purple
+		if (/FP4|INT4|W4|NF4|Q4|4.?BIT|AWQ|NVFP4|MXFP4/.test(q)) return '#A855F7'; // 4-bit → pale purple
+		if (/FP8|INT8|W8|Q8/.test(q)) return '#76B900';                               // 8-bit → NVIDIA green
+		return '#006666';                                                               // 16-bit → dark teal
+	}
+
+	// Build flat bar list: color encodes quant tier directly
+	function getBars() {
+		const main = benchData.models[0];
+		const mainQuants = main.engines[currentEngine] ?? {};
+		return [
+			...Object.keys(mainQuants).map((q) => ({
+				label: q,
+				color: getBarColor(q),
+				legendColor: getBarColor(q),
+				isMain: true,
+				c1: mainQuants[q]?.c1 ?? {},
+				c8: mainQuants[q]?.c8 ?? {},
+			})),
+			...benchData.models.slice(1).map((m) => {
+				const firstQuant = Object.values(m.engines[currentEngine] ?? {})[0] ?? { c1: {}, c8: {} };
+				return { label: m.name, color: m.color, legendColor: m.color, isMain: false, c1: firstQuant.c1, c8: firstQuant.c8 };
+			}),
+		];
 	}
 
 	function niceMax(max) {
@@ -228,44 +259,53 @@ const firstEngine = engineNames[0] ?? '';
 		return nice * mag;
 	}
 
-	// Global Y max across all engines × concurrencies × products (used when axis is locked)
+	// Global Y max across all engines × quants × concurrencies × products (used when axis is locked)
 	const globalYMax = niceMax(Math.max(
 		...benchData.models.flatMap((m) =>
 			benchData.engineNames.flatMap((eng) =>
-				benchData.products.map((p) => Math.max(
-					m.engines[eng]?.c1[p.id] ?? 0,
-					m.engines[eng]?.c8[p.id] ?? 0,
-				))
+				Object.values(m.engines[eng] ?? {}).flatMap((qd) =>
+					benchData.products.flatMap((p) => [qd.c1[p.id] ?? 0, qd.c8[p.id] ?? 0])
+				)
 			)
 		),
 		1,
 	));
 
+	function renderLegend() {
+		const legendEl = document.getElementById('bench-legend');
+		if (!legendEl) return;
+		const bars = getBars();
+		legendEl.classList.remove('hidden');
+		legendEl.innerHTML = bars.map((b) =>
+			`<div class="flex items-center gap-2"><span class="inline-block w-3.5 h-3.5 rounded-sm shrink-0" style="background:${b.legendColor ?? b.color};border:1px solid rgba(0,0,0,0.1)"></span><span class="text-xs" style="color:#374151">${b.label}</span></div>`
+		).join('');
+	}
+
 	function render() {
-		const models = getEffectiveModels();
+		const bars = getBars();
 		const key = conc; // 'c1' | 'c8'
 
-		const activeProducts = benchData.products.filter((p) =>
-			models.some((m) => m[key][p.id] != null),
-		);
+		const activeProducts = benchData.products;
 
-		if (activeProducts.length === 0) {
+		const hasAny = bars.some((b) => activeProducts.some((p) => b[key][p.id] != null));
+		if (!hasAny) {
 			chartEl.innerHTML = '';
 			noDataEl.classList.remove('hidden');
 			updateBtns();
+			renderLegend();
 			return;
 		}
 		noDataEl.classList.add('hidden');
 
-		const allVals = models.flatMap((m) =>
-			activeProducts.map((p) => m[key][p.id] ?? 0),
+		const allVals = bars.flatMap((b) =>
+			activeProducts.map((p) => b[key][p.id] ?? 0),
 		);
 		const yMax = yAxisFixed ? globalYMax : niceMax(Math.max(...allVals, 1));
 
 		// Layout — mt=28 reserves space above the chart area for the Y-lock button
 		const ml = 62, mr = 24, mt = 28, mb = 68;
 		const N = activeProducts.length;
-		const M = models.length;
+		const M = bars.length;
 
 		const groupW = Math.max(140, Math.min(260, 1100 / N));
 		const W = ml + N * groupW + mr;
@@ -286,11 +326,21 @@ const firstEngine = engineNames[0] ?? '';
 		let s = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg"
 			style="display:block;width:100%;max-width:${W}px;height:auto;margin:0 auto;font-family:system-ui,-apple-system,sans-serif">
 			<defs>
-				<filter id="ebar-glow" x="-80%" y="-80%" width="260%" height="260%">
-					<feGaussianBlur in="SourceGraphic" stdDeviation="7"/>
-				</filter>
-				<filter id="bar-shadow" x="-5%" y="-5%" width="135%" height="140%">
-					<feDropShadow dx="5" dy="6" stdDeviation="1" flood-color="black" flood-opacity="0.22"/>
+				<clipPath id="chart-clip">
+					<rect x="0" y="0" width="${W}" height="${mt + chartH}"/>
+				</clipPath>
+				<filter id="bar-shadow" x="-10%" y="-5%" width="140%" height="130%">
+					<feFlood flood-color="${engineHue}" flood-opacity="1" result="clr"/>
+					<feComposite in="clr" in2="SourceAlpha" operator="in" result="shape"/>
+					<feOffset dx="5" dy="6" in="shape" result="moved"/>
+					<feGaussianBlur in="moved" stdDeviation="2" result="blur"/>
+					<feComponentTransfer in="blur" result="shadow">
+						<feFuncA type="linear" slope="0.25"/>
+					</feComponentTransfer>
+					<feMerge>
+						<feMergeNode in="shadow"/>
+						<feMergeNode in="SourceGraphic"/>
+					</feMerge>
 				</filter>
 			</defs>
 			<style>
@@ -334,7 +384,7 @@ const firstEngine = engineNames[0] ?? '';
 		s += `<line x1="${ml}" y1="${mt}" x2="${ml}" y2="${mt + chartH}" stroke="#E5E7EB"/>`;
 		s += `<line x1="${ml}" y1="${mt + chartH}" x2="${ml + N * groupW}" y2="${mt + chartH}" stroke="#E5E7EB"/>`;
 
-		// Groups
+		// Groups — pass 1: dividers + X-axis labels (unclipped)
 		activeProducts.forEach((prod, gi) => {
 			const cx = groupCx(gi);
 
@@ -348,9 +398,13 @@ const firstEngine = engineNames[0] ?? '';
 			if (parts[1]) {
 				s += `<text x="${cx}" y="${ly + 15}" text-anchor="middle" fill="#6B7280" font-size="12">${parts[1]}</text>`;
 			}
+		});
 
-			models.forEach((model, bi) => {
-				const val = model[key][prod.id];
+		// Groups — pass 2: bars clipped to chart area so shadow never bleeds below X-axis
+		s += `<g clip-path="url(#chart-clip)">`;
+		activeProducts.forEach((prod, gi) => {
+			bars.forEach((bar, bi) => {
+				const val = bar[key][prod.id];
 				if (val == null) return;
 
 				const x = barLeft(gi, bi);
@@ -358,21 +412,21 @@ const firstEngine = engineNames[0] ?? '';
 				const by = mt + chartH - bh;
 				const rx = Math.min(3, barW / 5);
 
-				const gp = 5; // glow padding beyond bar edges
-				s += `<rect x="${x - gp}" y="${by - gp}" width="${barW + gp * 2}" height="${bh + gp * 2}" fill="${engineHue}" opacity="0.35" rx="${rx + 2}" filter="url(#ebar-glow)"/>`;
-				s += `<rect x="${x}" y="${by}" width="${barW}" height="${bh}" fill="${model.color}" rx="${rx}"
+				s += `<rect x="${x}" y="${by}" width="${barW}" height="${bh}" fill="${bar.color}" rx="${rx}"
 					class="bbar" filter="url(#bar-shadow)" style="cursor:pointer;animation-delay:${bi * 40}ms"
-					data-tip="${model.name}: ${val} ${benchData.unit}"/>`;
+					data-tip="${bar.label}: ${val} ${benchData.unit}"/>`;
 				if (bh > 20) {
 					s += `<text x="${x + barW / 2}" y="${by - 4}" text-anchor="middle"
-						fill="${model.isMain ? '#374151' : '#9CA3AF'}" font-size="9.5" font-weight="${model.isMain ? '600' : '400'}">${val}</text>`;
+						fill="${bar.isMain ? '#374151' : '#9CA3AF'}" font-size="9.5" font-weight="${bar.isMain ? '600' : '400'}">${val}</text>`;
 				}
 			});
 		});
+		s += `</g>`;
 
 		s += '</svg>';
 		chartEl.innerHTML = s;
 		updateBtns();
+		renderLegend();
 		attachHover();
 	}
 
@@ -404,13 +458,18 @@ const firstEngine = engineNames[0] ?? '';
 		document.getElementById('bench-btn-c1').className = conc === 'c1' ? onC : offC;
 		document.getElementById('bench-btn-c8').className = conc === 'c8' ? onC : offC;
 
-		const onE = 'px-4 py-1.5 text-xs font-semibold rounded-md bg-white text-nvidia-black shadow-sm transition-all duration-150';
+		const onE = 'px-4 py-1.5 text-xs font-semibold rounded-md bg-nvidia-black text-white shadow-sm transition-all duration-150';
 		const offE = 'px-4 py-1.5 text-xs font-semibold rounded-md text-nvidia-gray-600 hover:bg-nvidia-gray-200 transition-all duration-150';
 		document.querySelectorAll('#bench-engine-toggle [data-engine]').forEach((btn) => {
 			btn.className = btn.dataset.engine === currentEngine ? onE : offE;
+			btn.style.backgroundColor = '';
 		});
 
 		if (engineLabelEl) engineLabelEl.textContent = currentEngine;
+		const quants = Object.keys(benchData.models[0]?.engines[currentEngine] ?? {});
+		const q = quants.join(' / ');
+		if (quantLabelEl) quantLabelEl.textContent = q;
+		if (quantWrapperEl) quantWrapperEl.classList.toggle('hidden', !q);
 	}
 
 	document.getElementById('bench-btn-c1').addEventListener('click', () => { conc = 'c1'; render(); });

@@ -10,6 +10,10 @@ type: "Text"
 vision_capable: false
 memory_requirements: "32GB RAM"
 precision: "FP4"
+parameters: "30B total / 3B activated"
+modalities: ["Text"]
+context_length: "256K"
+license: "NVIDIA Nemotron Open Model License"
 model_size: "17GB"
 hf_checkpoint: "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-NVFP4"
 huggingface_url: "https://huggingface.co/nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-NVFP4"

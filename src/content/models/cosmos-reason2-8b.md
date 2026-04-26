@@ -10,6 +10,10 @@ type: "Multimodal"
 vision_capable: true
 memory_requirements: "18GB RAM"
 precision: "FP8"
+parameters: "8B"
+modalities: ["Text", "Image", "Video"]
+context_length: "256K"
+license: "NVIDIA Open Model License"
 model_size: "10GB"
 hf_checkpoint: "nvidia/Cosmos-Reason2-8B"
 huggingface_url: "https://huggingface.co/nvidia/Cosmos-Reason2-8B"

@@ -10,6 +10,10 @@ type: "Text"
 vision_capable: false
 memory_requirements: "4GB RAM"
 precision: "Q4_K_M GGUF"
+parameters: "4B"
+modalities: ["Text"]
+context_length: "256K"
+license: "NVIDIA Nemotron Open Model License"
 model_size: "2.5GB"
 hf_checkpoint: "nvidia/NVIDIA-Nemotron-3-Nano-4B-GGUF"
 minimum_jetson: "Jetson Orin"

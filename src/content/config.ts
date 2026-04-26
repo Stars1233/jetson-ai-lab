@@ -76,13 +76,21 @@ const modelsSchema = z.object({
 	order: z.number().optional(),
 	type: z.string().optional(),
 	/** True if the model accepts image/video (or other visual) inputs — VLM / vision-capable. */
-	vision_capable: z.boolean(),
+	vision_capable: z.boolean().optional(),
 	hf_checkpoint: z.string().optional(),
 	huggingface_url: z.string().url().optional(),
 	build_nvidia_url: z.string().url().optional(),
-	memory_requirements: z.string(),
+	memory_requirements: z.string().optional(),
 	precision: z.string(),
-	model_size: z.string(),
+	model_size: z.string().optional(),
+	/** Free-text parameter count, e.g. "~9B" or "35B total / 3B activated" */
+	parameters: z.string().optional(),
+	/** Modalities the model supports, e.g. ["Text", "Image", "Audio"] */
+	modalities: z.array(z.string()).optional(),
+	/** Maximum context window, e.g. "128K" */
+	context_length: z.string().optional(),
+	/** License name, e.g. "Apache 2.0" or "NVIDIA AI Foundations" */
+	license: z.string().optional(),
 	minimum_jetson: z.string().optional(),
 	/** Matrix tab ids to show grayed / non-clickable (e.g. not validated for this model yet). */
 	matrix_modules_disabled: z.array(z.string()).optional(),

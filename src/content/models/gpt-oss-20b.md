@@ -10,6 +10,10 @@ type: "Text"
 vision_capable: false
 memory_requirements: "16GB RAM"
 precision: "W4A16"
+parameters: "21B total / 3.6B activated"
+modalities: ["Text"]
+context_length: "128K"
+license: "Apache 2.0"
 model_size: "12GB"
 hf_checkpoint: "openai/gpt-oss-20b"
 huggingface_url: "https://huggingface.co/openai/gpt-oss-20b"

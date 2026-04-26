@@ -10,6 +10,10 @@ type: "Text"
 vision_capable: false
 memory_requirements: "16GB RAM"
 precision: "W4A16"
+parameters: "30B total / 3.3B activated"
+modalities: ["Text"]
+context_length: "128K"
+license: "Apache 2.0"
 model_size: "16GB"
 hf_checkpoint: "RedHatAI/Qwen3-30B-A3B-quantized.w4a16"
 huggingface_url: "https://huggingface.co/Qwen/Qwen3-30B-A3B"

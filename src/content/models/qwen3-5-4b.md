@@ -10,6 +10,10 @@ type: "Multimodal"
 vision_capable: true
 memory_requirements: "4GB RAM"
 precision: "AWQ 4-bit"
+parameters: "4B"
+modalities: ["Text", "Image"]
+context_length: "256K"
+license: "Apache 2.0"
 model_size: "2.5GB"
 hf_checkpoint: "cyankiwi/Qwen3.5-4B-AWQ-4bit"
 huggingface_url: "https://huggingface.co/Qwen/Qwen3.5-4B"

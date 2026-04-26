@@ -10,6 +10,10 @@ type: "Text"
 vision_capable: false
 memory_requirements: "20GB RAM"
 precision: "NVFP4 / W4A16"
+parameters: "35B total / 3B activated"
+modalities: ["Text", "Image"]
+context_length: "256K"
+license: "Apache 2.0"
 model_size: "18GB"
 hf_checkpoint: "Qwen/Qwen3.5-35B-A3B"
 huggingface_url: "https://huggingface.co/Qwen/Qwen3.5-35B-A3B"

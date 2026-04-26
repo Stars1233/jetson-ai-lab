@@ -10,6 +10,10 @@ type: "Text"
 vision_capable: false
 memory_requirements: "4GB RAM"
 precision: "W4A16"
+parameters: "3B"
+modalities: ["Text"]
+context_length: "128K"
+license: "Llama 3.2 Community License"
 model_size: "2.0GB"
 hf_checkpoint: "espressor/meta-llama.Llama-3.2-3B-Instruct_W4A16"
 huggingface_url: "https://huggingface.co/meta-llama/Llama-3.2-3B-Instruct"

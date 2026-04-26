@@ -10,6 +10,10 @@ type: "Text"
 vision_capable: false
 memory_requirements: "8GB RAM"
 precision: "W4A16"
+parameters: "8B"
+modalities: ["Text"]
+context_length: "128K"
+license: "Apache 2.0"
 model_size: "4.5GB"
 hf_checkpoint: "RedHatAI/Qwen3-8B-quantized.w4a16"
 huggingface_url: "https://huggingface.co/Qwen/Qwen3-8B"

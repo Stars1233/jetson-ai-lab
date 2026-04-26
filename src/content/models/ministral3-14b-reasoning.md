@@ -10,6 +10,10 @@ type: "Multimodal"
 vision_capable: true
 memory_requirements: "16GB RAM"
 precision: "FP16"
+parameters: "14B"
+modalities: ["Text"]
+context_length: "262K"
+license: "Apache 2.0"
 model_size: "9GB"
 hf_checkpoint: "mistralai/Ministral-3-14B-Reasoning-2512"
 minimum_jetson: "Orin AGX"

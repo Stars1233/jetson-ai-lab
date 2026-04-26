@@ -10,6 +10,10 @@ type: "Text"
 vision_capable: false
 memory_requirements: "64GB RAM"
 precision: "NVFP4"
+parameters: "117B total / 5.1B activated"
+modalities: ["Text"]
+context_length: "128K"
+license: "Apache 2.0"
 model_size: "60GB"
 hf_checkpoint: "openai/gpt-oss-120b"
 huggingface_url: "https://huggingface.co/openai/gpt-oss-120b"

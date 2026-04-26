@@ -10,6 +10,10 @@ type: "Multimodal"
 vision_capable: true
 memory_requirements: "8GB RAM"
 precision: "Q4_K_S GGUF"
+parameters: "2.3B effective (5.1B with embeddings)"
+modalities: ["Text", "Image", "Audio"]
+context_length: "128K"
+license: "Apache 2.0"
 model_size: "5.0GB"
 hf_checkpoint: "ggml-org/gemma-4-E2B-it-GGUF"
 huggingface_url: "https://huggingface.co/google/gemma-4-E2B-it"

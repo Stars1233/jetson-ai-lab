@@ -10,6 +10,10 @@ type: "Multimodal"
 vision_capable: true
 memory_requirements: "8GB RAM"
 precision: "FP8"
+parameters: "8B"
+modalities: ["Text"]
+context_length: "262K"
+license: "Apache 2.0"
 model_size: "5GB"
 hf_checkpoint: "mistralai/Ministral-3-8B-Instruct-2512"
 minimum_jetson: "Orin NX"

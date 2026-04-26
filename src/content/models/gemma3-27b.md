@@ -10,6 +10,10 @@ type: "Multimodal"
 vision_capable: true
 memory_requirements: "24GB RAM"
 precision: "W4A16"
+parameters: "27B"
+modalities: ["Text", "Image"]
+context_length: "128K"
+license: "Gemma Terms of Service"
 model_size: "15GB"
 hf_checkpoint: "RedHatAI/gemma-3-27b-it-quantized.w4a16"
 huggingface_url: "https://huggingface.co/google/gemma-3-27b-it"

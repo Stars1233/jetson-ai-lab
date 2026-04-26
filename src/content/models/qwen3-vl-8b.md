@@ -10,6 +10,10 @@ type: "Multimodal"
 vision_capable: true
 memory_requirements: "8GB RAM"
 precision: "AWQ 4-bit"
+parameters: "8B"
+modalities: ["Text", "Image"]
+context_length: "256K"
+license: "Apache 2.0"
 model_size: "5GB"
 hf_checkpoint: "cpatonn/Qwen3-VL-8B-Instruct-AWQ-4bit"
 minimum_jetson: "Orin NX"

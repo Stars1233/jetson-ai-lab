@@ -10,6 +10,10 @@ type: "Multimodal"
 vision_capable: true
 memory_requirements: "16GB RAM"
 precision: "FP16"
+parameters: "7B"
+modalities: ["Text", "Image", "Video"]
+context_length: "128K"
+license: "NVIDIA Open Model License"
 model_size: "14GB"
 hf_checkpoint: "nvidia/Cosmos-Reason1-7B"
 huggingface_url: "https://huggingface.co/nvidia/Cosmos-Reason1-7B"

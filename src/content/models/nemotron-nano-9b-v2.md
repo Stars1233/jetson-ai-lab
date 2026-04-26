@@ -10,6 +10,10 @@ type: "Text"
 vision_capable: false
 memory_requirements: "12GB RAM"
 precision: "NVFP4"
+parameters: "9B"
+modalities: ["Text"]
+context_length: "128K"
+license: "NVIDIA Open Model License"
 model_size: "6GB"
 hf_checkpoint: "nvidia/NVIDIA-Nemotron-Nano-9B-v2-NVFP4"
 huggingface_url: "https://huggingface.co/nvidia/NVIDIA-Nemotron-Nano-9B-v2-NVFP4"
