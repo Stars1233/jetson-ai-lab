@@ -23,13 +23,13 @@ supported_inference_engines:
     serve_command_thor: |-
       sudo docker run -it --rm --pull always \
         --runtime=nvidia --network host \
-        ghcr.io/nvidia-ai-iot/vllm:latest-jetson-thor \
-        vllm serve sakamakismile/Qwen3.6-27B-NVFP4 \
+        vllm/vllm-openai:nightly-aarch64 \
+        bash -c "pip install -q 'vllm[audio]' && vllm serve sakamakismile/Qwen3.6-27B-NVFP4 \
           --gpu-memory-utilization 0.8 \
           --enable-prefix-caching \
           --reasoning-parser qwen3 \
           --enable-auto-tool-choice \
-          --tool-call-parser qwen3_coder
+          --tool-call-parser qwen3_coder"
 benchmark:
   thor:
     concurrency1: 13
@@ -57,11 +57,11 @@ Qwen3.6 27B is a dense language model from Alibaba Cloud's Qwen3.6 family. With 
 
 ```bash
 sudo docker run -it --rm --pull always --runtime=nvidia --network host \
-  ghcr.io/nvidia-ai-iot/vllm:latest-jetson-thor \
-  vllm serve sakamakismile/Qwen3.6-27B-NVFP4 \
+  vllm/vllm-openai:nightly-aarch64 \
+  bash -c "pip install -q 'vllm[audio]' && vllm serve sakamakismile/Qwen3.6-27B-NVFP4 \
     --gpu-memory-utilization 0.8 --enable-prefix-caching \
     --reasoning-parser qwen3 \
-    --enable-auto-tool-choice --tool-call-parser qwen3_coder
+    --enable-auto-tool-choice --tool-call-parser qwen3_coder"
 ```
 
 ## Speculative Decoding with MTP
