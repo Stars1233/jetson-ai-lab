@@ -65,12 +65,6 @@ const servingEntrySchema = z.object({
 	run_commands_by_module: z.record(z.string()).optional(),
 });
 
-const benchmarkPlatformSchema = z.object({
-	concurrency1: z.number(),
-	concurrency8: z.number(),
-	ttftMs: z.number(),
-});
-
 const modelsSchema = z.object({
 	title: z.string(),
 	model_id: z.string().optional(),
@@ -82,16 +76,28 @@ const modelsSchema = z.object({
 	order: z.number().optional(),
 	type: z.string().optional(),
 	/** True if the model accepts image/video (or other visual) inputs — VLM / vision-capable. */
-	vision_capable: z.boolean(),
+	vision_capable: z.boolean().optional(),
 	hf_checkpoint: z.string().optional(),
 	huggingface_url: z.string().url().optional(),
 	build_nvidia_url: z.string().url().optional(),
-	memory_requirements: z.string(),
+	memory_requirements: z.string().optional(),
 	precision: z.string(),
-	model_size: z.string(),
+	model_size: z.string().optional(),
+	/** Free-text parameter count, e.g. "~9B" or "35B total / 3B activated" */
+	parameters: z.string().optional(),
+	/** Modalities the model supports, e.g. ["Text", "Image", "Audio"] */
+	modalities: z.array(z.string()).optional(),
+	/** Maximum context window, e.g. "128K" */
+	context_length: z.string().optional(),
+	/** License name, e.g. "Apache 2.0" or "NVIDIA AI Foundations" */
+	license: z.string().optional(),
 	minimum_jetson: z.string().optional(),
 	/** Matrix tab ids to show grayed / non-clickable (e.g. not validated for this model yet). */
 	matrix_modules_disabled: z.array(z.string()).optional(),
+	/** Key matching the `name` field in benchmarks.json — links this model to its benchmark data. */
+	benchmark_key: z.string().optional(),
+	/** Other benchmark_key names to show as side-by-side reference bars (lineup/series comparison). */
+	benchmark_series: z.array(z.string()).optional(),
 	supported_inference_engines: z.array(supportedInferenceEngineEntrySchema).optional(),
 	serving: z
 		.object({
@@ -115,12 +121,6 @@ const modelsSchema = z.object({
 			intro: z.string().optional(),
 			shell_by_module: z.record(z.string()).optional(),
 			python_by_module: z.record(z.string()).optional(),
-		})
-		.optional(),
-	benchmark: z
-		.object({
-			orin: benchmarkPlatformSchema,
-			thor: benchmarkPlatformSchema,
 		})
 		.optional(),
 });

@@ -10,6 +10,10 @@ type: "Multimodal"
 vision_capable: true
 memory_requirements: "16GB RAM"
 precision: "NVFP4-QAD"
+parameters: "12B"
+modalities: ["Text", "Image", "Video"]
+context_length: "128K"
+license: "NVIDIA Open Model License"
 model_size: "8GB"
 hf_checkpoint: "nvidia/NVIDIA-Nemotron-Nano-12B-v2-VL-NVFP4-QAD"
 huggingface_url: "https://huggingface.co/nvidia/NVIDIA-Nemotron-Nano-12B-v2-VL-NVFP4-QAD"

@@ -10,6 +10,10 @@ type: "Text"
 vision_capable: false
 memory_requirements: "24GB RAM"
 precision: "W4A16"
+parameters: "32B"
+modalities: ["Text"]
+context_length: "128K"
+license: "Apache 2.0"
 model_size: "18GB"
 hf_checkpoint: "RedHatAI/Qwen3-32B-quantized.w4a16"
 huggingface_url: "https://huggingface.co/Qwen/Qwen3-32B"
@@ -40,6 +44,9 @@ supported_inference_engines:
         --runtime=nvidia --network host \
         ghcr.io/nvidia-ai-iot/vllm:latest-jetson-thor \
         vllm serve RedHatAI/Qwen3-32B-quantized.w4a16
+benchmark_key: "Qwen3-32B"
+benchmark_series:
+  - "Qwen3-30B-A3B"
 ---
 
 Qwen3 32B is the flagship dense model in Alibaba Cloud's Qwen3 family. With 32 billion parameters, it delivers exceptional performance across complex reasoning, coding, and language understanding tasks.

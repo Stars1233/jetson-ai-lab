@@ -10,6 +10,10 @@ type: "Text"
 vision_capable: false
 memory_requirements: "16GB RAM"
 precision: "W4A16"
+parameters: "21B total / 3.6B activated"
+modalities: ["Text"]
+context_length: "128K"
+license: "Apache 2.0"
 model_size: "12GB"
 hf_checkpoint: "openai/gpt-oss-20b"
 huggingface_url: "https://huggingface.co/openai/gpt-oss-20b"
@@ -42,6 +46,7 @@ supported_inference_engines:
         -e TIKTOKEN_ENCODINGS_BASE=/etc/encodings \
         ghcr.io/nvidia-ai-iot/vllm:latest-jetson-thor \
         vllm serve openai/gpt-oss-20b --gpu-memory-utilization 0.8
+benchmark_key: "GPT-OSS-20B"
 ---
 
 [OpenAI GPT OSS 20B](https://huggingface.co/openai/gpt-oss-20b) is OpenAI's open-source 20 billion parameter language model. This model requires tiktoken encodings to be downloaded before serving.

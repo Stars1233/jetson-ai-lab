@@ -10,6 +10,10 @@ type: "Text"
 vision_capable: false
 memory_requirements: "16GB RAM"
 precision: "W4A16"
+parameters: "30B total / 3.3B activated"
+modalities: ["Text"]
+context_length: "128K"
+license: "Apache 2.0"
 model_size: "16GB"
 hf_checkpoint: "RedHatAI/Qwen3-30B-A3B-quantized.w4a16"
 huggingface_url: "https://huggingface.co/Qwen/Qwen3-30B-A3B"
@@ -41,6 +45,9 @@ supported_inference_engines:
         --runtime=nvidia --network host \
         ghcr.io/nvidia-ai-iot/vllm:latest-jetson-thor \
         vllm serve RedHatAI/Qwen3-30B-A3B-quantized.w4a16
+benchmark_key: "Qwen3-30B-A3B"
+benchmark_series:
+  - "Qwen3-32B"
 ---
 
 Qwen3 30B-A3B is a Mixture-of-Experts (MoE) model from Alibaba Cloud's Qwen3 family. It features 30 billion total parameters with only 3 billion active during inference, providing excellent performance with improved efficiency.

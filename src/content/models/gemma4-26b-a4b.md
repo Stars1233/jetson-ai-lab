@@ -10,6 +10,10 @@ type: "Multimodal"
 vision_capable: true
 memory_requirements: "24GB RAM"
 precision: "Q4_K_M GGUF"
+parameters: "3.8B active (25.8B total, MoE)"
+modalities: ["Text", "Image"]
+context_length: "256K"
+license: "Apache 2.0"
 model_size: "16.8GB"
 hf_checkpoint: "ggml-org/gemma-4-26B-A4B-it-GGUF"
 huggingface_url: "https://huggingface.co/google/gemma-4-26B-A4B-it"
@@ -60,6 +64,10 @@ serving:
           -v $HOME/.cache/huggingface:/root/.cache/huggingface \
           ghcr.io/nvidia-ai-iot/llama_cpp:latest-jetson-thor \
           llama-server -hf ggml-org/gemma-4-26B-A4B-it-GGUF:Q4_K_M
+benchmark_key: "Gemma 4 26B-A4B"
+benchmark_series:
+  - "Gemma 4 E2B"
+  - "Gemma 4 31B"
 ---
 
 Gemma 4 26B-A4B is a larger Gemma 4 variant that can be served on Jetson with `llama.cpp`. Google presents this model as the latency-optimized high-end option in the family: a Mixture-of-Experts model that targets much better throughput than a dense model of similar total size.

@@ -10,6 +10,10 @@ type: "Text"
 vision_capable: false
 memory_requirements: "20GB RAM"
 precision: "NVFP4 / W4A16"
+parameters: "35B total / 3B activated"
+modalities: ["Text", "Image"]
+context_length: "256K"
+license: "Apache 2.0"
 model_size: "18GB"
 hf_checkpoint: "Qwen/Qwen3.5-35B-A3B"
 huggingface_url: "https://huggingface.co/Qwen/Qwen3.5-35B-A3B"
@@ -51,6 +55,9 @@ benchmark:
     concurrency1: 35
     concurrency8: 125
     ttftMs: 0
+benchmark_key: "Qwen3.5-35B-A3B"
+benchmark_series:
+  - "Qwen3.5-27B"
 ---
 
 Qwen3.5 35B-A3B is a Mixture-of-Experts (MoE) model from Alibaba Cloud's Qwen3.5 family. It features 35 billion total parameters with only 3 billion active during inference, delivering strong performance with excellent efficiency on edge devices.

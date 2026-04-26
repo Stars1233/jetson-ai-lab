@@ -10,6 +10,10 @@ type: "Text"
 vision_capable: false
 memory_requirements: "32GB RAM"
 precision: "FP4"
+parameters: "30B total / 3B activated"
+modalities: ["Text"]
+context_length: "256K"
+license: "NVIDIA Nemotron Open Model License"
 model_size: "17GB"
 hf_checkpoint: "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-NVFP4"
 huggingface_url: "https://huggingface.co/nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-NVFP4"
@@ -73,6 +77,10 @@ one_shot_inference:
     - orin_nano_8
   run_command_orin: ollama run nemotron-3-nano
   run_command_thor: ollama run nemotron-3-nano
+benchmark_key: "Nemotron 3 30B-A3B"
+benchmark_series:
+  - "Nemotron Nano 9B V2"
+  - "Nemotron3 Nano 4B"
 ---
 
 **Note:** The Thor command requires a [Hugging Face access token](https://huggingface.co/settings/tokens) with access to the gated NVFP4 checkpoint. The Orin command uses a community AWQ checkpoint that does not require authentication. If you see *"Free memory on device … is less than desired GPU memory utilization"*, lower `--gpu-memory-utilization` in the Advanced options.

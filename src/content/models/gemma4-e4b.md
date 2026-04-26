@@ -10,6 +10,10 @@ type: "Multimodal"
 vision_capable: true
 memory_requirements: "8GB RAM"
 precision: "Q4_K_M GGUF"
+parameters: "4.5B effective (8B with embeddings)"
+modalities: ["Text", "Image", "Audio"]
+context_length: "128K"
+license: "Apache 2.0"
 model_size: "5.3GB"
 hf_checkpoint: "unsloth/gemma-4-E4B"
 huggingface_url: "https://huggingface.co/unsloth/gemma-4-E4B"

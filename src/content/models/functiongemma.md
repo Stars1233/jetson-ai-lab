@@ -10,6 +10,10 @@ type: "Text"
 vision_capable: false
 memory_requirements: "1GB RAM"
 precision: "FP8"
+parameters: "270M"
+modalities: ["Text"]
+context_length: "32K"
+license: "Gemma Terms of Service"
 model_size: "0.5GB"
 hf_checkpoint: "ggml-org/functiongemma-270m-it-GGUF"
 huggingface_url: "https://huggingface.co/google/functiongemma-270m-it"

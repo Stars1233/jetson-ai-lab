@@ -10,6 +10,10 @@ type: "Text"
 vision_capable: false
 memory_requirements: "48GB RAM"
 precision: "W4A16"
+parameters: "70B"
+modalities: ["Text"]
+context_length: "128K"
+license: "Llama 3.1 Community License"
 model_size: "40GB"
 hf_checkpoint: "RedHatAI/Meta-Llama-3.1-70B-Instruct-quantized.w4a16"
 huggingface_url: "https://huggingface.co/meta-llama/Llama-3.1-70B-Instruct"

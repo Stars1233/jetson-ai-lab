@@ -10,6 +10,10 @@ type: "Multimodal"
 vision_capable: true
 memory_requirements: "2GB RAM"
 precision: "BF16"
+parameters: "0.8B"
+modalities: ["Text", "Image"]
+context_length: "256K"
+license: "Apache 2.0"
 model_size: "1.7GB"
 hf_checkpoint: "Qwen/Qwen3.5-0.8B"
 huggingface_url: "https://huggingface.co/Qwen/Qwen3.5-0.8B"

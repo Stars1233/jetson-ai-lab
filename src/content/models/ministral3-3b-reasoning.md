@@ -10,6 +10,10 @@ type: "Multimodal"
 vision_capable: true
 memory_requirements: "4GB RAM"
 precision: "FP16"
+parameters: "3B"
+modalities: ["Text"]
+context_length: "262K"
+license: "Apache 2.0"
 model_size: "2GB"
 hf_checkpoint: "mistralai/Ministral-3-3B-Reasoning-2512"
 minimum_jetson: "Orin Nano"

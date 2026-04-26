@@ -10,6 +10,10 @@ type: "Multimodal"
 vision_capable: true
 memory_requirements: "4GB RAM"
 precision: "W4A16"
+parameters: "4B"
+modalities: ["Text", "Image"]
+context_length: "128K"
+license: "Gemma Terms of Service"
 model_size: "2.5GB"
 hf_checkpoint: "RedHatAI/gemma-3-4b-it-quantized.w4a16"
 minimum_jetson: "Orin Nano"

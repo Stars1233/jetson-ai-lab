@@ -10,6 +10,10 @@ type: "Multimodal"
 vision_capable: true
 memory_requirements: "18GB RAM"
 precision: "FP8"
+parameters: "8B"
+modalities: ["Text", "Image", "Video"]
+context_length: "256K"
+license: "NVIDIA Open Model License"
 model_size: "10GB"
 hf_checkpoint: "nvidia/Cosmos-Reason2-8B"
 huggingface_url: "https://huggingface.co/nvidia/Cosmos-Reason2-8B"
@@ -68,6 +72,9 @@ supported_inference_engines:
         -v $HOME/.cache/huggingface:/root/.cache/huggingface \
         ghcr.io/nvidia-ai-iot/llama_cpp:latest-jetson-thor \
         llama-server -hf Kbenkhaled/Cosmos-Reason2-8B-GGUF:Q4_K_M -c 8192
+benchmark_key: "Cosmos Reasoning 2 8B"
+benchmark_series:
+  - "Cosmos Reasoning 2 2B"
 ---
 
 [NVIDIA Cosmos Reason 2 8B](https://huggingface.co/nvidia/Cosmos-Reason2-8B) is the larger variant in the Cosmos Reason 2 family, offering enhanced reasoning performance with 8 billion parameters. It provides stronger chain-of-thought reasoning capabilities compared to the 2B variant, suitable for more demanding vision-language tasks on Jetson.

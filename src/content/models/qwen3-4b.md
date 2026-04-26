@@ -10,6 +10,10 @@ type: "Text"
 vision_capable: false
 memory_requirements: "4GB RAM"
 precision: "W4A16"
+parameters: "4B"
+modalities: ["Text"]
+context_length: "128K"
+license: "Apache 2.0"
 model_size: "2.5GB"
 hf_checkpoint: "RedHatAI/Qwen3-4B-quantized.w4a16"
 huggingface_url: "https://huggingface.co/Qwen/Qwen3-4B"
@@ -43,6 +47,9 @@ supported_inference_engines:
         --runtime=nvidia --network host \
         ghcr.io/nvidia-ai-iot/vllm:latest-jetson-thor \
         vllm serve RedHatAI/Qwen3-4B-quantized.w4a16
+benchmark_key: "Qwen 3 4B"
+benchmark_series:
+  - "Qwen 3 8B"
 ---
 
 Qwen3 is Alibaba Cloud's latest generation of large language models, offering state-of-the-art performance across a wide range of tasks. The Qwen3 4B model provides an excellent balance of capability and efficiency for edge deployment.

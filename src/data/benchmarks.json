@@ -1,13 +1,39 @@
 {
   "products": [
-    { "id": "t5000", "name": "T5000", "fullName": "Jetson Thor T5000", "generation": "Thor" },
-    { "id": "t4000", "name": "T4000", "fullName": "Jetson Thor T4000", "generation": "Thor" },
-    { "id": "agx_orin_64gb", "name": "AGX Orin 64GB", "fullName": "Jetson AGX Orin 64GB", "generation": "Orin" },
-    { "id": "orin_nx_16gb", "name": "Orin NX 16GB", "fullName": "Jetson Orin NX 16GB", "generation": "Orin" },
-    { "id": "orin_nano_8gb", "name": "Orin Nano 8GB", "fullName": "Jetson Orin Nano 8GB", "generation": "Orin" }
+    {
+      "id": "t5000",
+      "name": "T5000",
+      "fullName": "Jetson Thor T5000",
+      "generation": "Thor"
+    },
+    {
+      "id": "t4000",
+      "name": "T4000",
+      "fullName": "Jetson Thor T4000",
+      "generation": "Thor"
+    },
+    {
+      "id": "agx_orin_64gb",
+      "name": "AGX Orin 64GB",
+      "fullName": "Jetson AGX Orin 64GB",
+      "generation": "Orin"
+    },
+    {
+      "id": "orin_nx_16gb",
+      "name": "Orin NX 16GB",
+      "fullName": "Jetson Orin NX 16GB",
+      "generation": "Orin"
+    },
+    {
+      "id": "orin_nano_8gb",
+      "name": "Orin Nano 8GB",
+      "fullName": "Jetson Orin Nano 8GB",
+      "generation": "Orin"
+    }
   ],
   "notes": [
-    "Unless otherwise specified, all models utilize W4A16 quantization for Orin and NVFP4 for Thor."
+    "Unless otherwise specified, all models utilize W4A16 quantization for Orin and NVFP4 for Thor.",
+    "NVFP4 and MXFP4 require Blackwell FP4 tensor cores and are not available on Orin (Ampere)."
   ],
   "models": [
     {
@@ -15,13 +41,19 @@
       "name": "Nemotron Nano 9B V2",
       "releaseDate": "2025-08-18",
       "capabilities": { "language": true, "vision": false, "audio": false, "vla": false },
-      "quantization": "NVFP4",
-      "framework": "VLLM",
       "isl": 2048,
       "osl": 128,
-      "performance": {
-        "concurrency1": { "t5000": 30, "t4000": 24, "agx_orin_64gb": 20, "orin_nx_16gb": 11, "orin_nano_8gb": null },
-        "concurrency8": { "t5000": 100, "t4000": 82, "agx_orin_64gb": 85, "orin_nx_16gb": 60, "orin_nano_8gb": null }
+      "engines": {
+        "vLLM": {
+          "NVFP4": {
+            "concurrency1": { "t5000": 30, "t4000": 24, "agx_orin_64gb": null, "orin_nx_16gb": null, "orin_nano_8gb": null },
+            "concurrency8": { "t5000": 100, "t4000": 82, "agx_orin_64gb": null, "orin_nx_16gb": null, "orin_nano_8gb": null }
+          },
+          "W4A16": {
+            "concurrency1": { "t5000": null, "t4000": null, "agx_orin_64gb": 20, "orin_nx_16gb": 11, "orin_nano_8gb": null },
+            "concurrency8": { "t5000": null, "t4000": null, "agx_orin_64gb": 85, "orin_nx_16gb": 60, "orin_nano_8gb": null }
+          }
+        }
       }
     },
     {
@@ -29,13 +61,19 @@
       "name": "Nemotron 3 30B-A3B",
       "releaseDate": "2025-12-15",
       "capabilities": { "language": true, "vision": false, "audio": false, "vla": false },
-      "quantization": "NVFP4",
-      "framework": "VLLM",
       "isl": 2048,
       "osl": 128,
-      "performance": {
-        "concurrency1": { "t5000": 55, "t4000": 46, "agx_orin_64gb": 35, "orin_nx_16gb": null, "orin_nano_8gb": null },
-        "concurrency8": { "t5000": 161, "t4000": 135, "agx_orin_64gb": 71, "orin_nx_16gb": null, "orin_nano_8gb": null }
+      "engines": {
+        "vLLM": {
+          "NVFP4": {
+            "concurrency1": { "t5000": 55, "t4000": 46, "agx_orin_64gb": null, "orin_nx_16gb": null, "orin_nano_8gb": null },
+            "concurrency8": { "t5000": 161, "t4000": 135, "agx_orin_64gb": null, "orin_nx_16gb": null, "orin_nano_8gb": null }
+          },
+          "W4A16": {
+            "concurrency1": { "t5000": null, "t4000": null, "agx_orin_64gb": 35, "orin_nx_16gb": null, "orin_nano_8gb": null },
+            "concurrency8": { "t5000": null, "t4000": null, "agx_orin_64gb": 71, "orin_nx_16gb": null, "orin_nano_8gb": null }
+          }
+        }
       }
     },
     {
@@ -43,13 +81,15 @@
       "name": "Nemotron3 Nano 4B",
       "releaseDate": "2026-03-16",
       "capabilities": { "language": true, "vision": false, "audio": false, "vla": false },
-      "quantization": "Q4_K_M GGUF",
-      "framework": "llama.cpp",
       "isl": 2048,
       "osl": 128,
-      "performance": {
-        "concurrency1": { "t5000": 56, "t4000": null, "agx_orin_64gb": 43, "orin_nx_16gb": 22, "orin_nano_8gb": 18 },
-        "concurrency8": { "t5000": null, "t4000": null, "agx_orin_64gb": null, "orin_nx_16gb": null, "orin_nano_8gb": null }
+      "engines": {
+        "llama.cpp": {
+          "Q4_K_M GGUF": {
+            "concurrency1": { "t5000": 56, "t4000": null, "agx_orin_64gb": 43, "orin_nx_16gb": 22, "orin_nano_8gb": 18 },
+            "concurrency8": { "t5000": null, "t4000": null, "agx_orin_64gb": null, "orin_nx_16gb": null, "orin_nano_8gb": null }
+          }
+        }
       }
     },
     {
@@ -57,13 +97,19 @@
       "name": "Cosmos Reasoning 2 2B",
       "releaseDate": "2025-12-19",
       "capabilities": { "language": true, "vision": true, "audio": false, "vla": false },
-      "quantization": "NVFP4*",
-      "framework": "VLLM",
       "isl": 2048,
       "osl": 128,
-      "performance": {
-        "concurrency1": { "t5000": 108, "t4000": 89, "agx_orin_64gb": 59, "orin_nx_16gb": 25, "orin_nano_8gb": null },
-        "concurrency8": { "t5000": 482, "t4000": 410, "agx_orin_64gb": 273, "orin_nx_16gb": 65, "orin_nano_8gb": null }
+      "engines": {
+        "vLLM": {
+          "NVFP4*": {
+            "concurrency1": { "t5000": 108, "t4000": 89, "agx_orin_64gb": null, "orin_nx_16gb": null, "orin_nano_8gb": null },
+            "concurrency8": { "t5000": 482, "t4000": 410, "agx_orin_64gb": null, "orin_nx_16gb": null, "orin_nano_8gb": null }
+          },
+          "W4A16": {
+            "concurrency1": { "t5000": null, "t4000": null, "agx_orin_64gb": 59, "orin_nx_16gb": 25, "orin_nano_8gb": null },
+            "concurrency8": { "t5000": null, "t4000": null, "agx_orin_64gb": 273, "orin_nx_16gb": 65, "orin_nano_8gb": null }
+          }
+        }
       }
     },
     {
@@ -71,13 +117,19 @@
       "name": "Cosmos Reasoning 2 8B",
       "releaseDate": "2025-12-19",
       "capabilities": { "language": true, "vision": true, "audio": true, "vla": false },
-      "quantization": "NVFP4*",
-      "framework": "VLLM",
       "isl": 2048,
       "osl": 128,
-      "performance": {
-        "concurrency1": { "t5000": 40, "t4000": 32, "agx_orin_64gb": 19, "orin_nx_16gb": 6, "orin_nano_8gb": null },
-        "concurrency8": { "t5000": 222, "t4000": 190, "agx_orin_64gb": 108, "orin_nx_16gb": 12, "orin_nano_8gb": null }
+      "engines": {
+        "vLLM": {
+          "NVFP4*": {
+            "concurrency1": { "t5000": 40, "t4000": 32, "agx_orin_64gb": null, "orin_nx_16gb": null, "orin_nano_8gb": null },
+            "concurrency8": { "t5000": 222, "t4000": 190, "agx_orin_64gb": null, "orin_nx_16gb": null, "orin_nano_8gb": null }
+          },
+          "W4A16": {
+            "concurrency1": { "t5000": null, "t4000": null, "agx_orin_64gb": 19, "orin_nx_16gb": 6, "orin_nano_8gb": null },
+            "concurrency8": { "t5000": null, "t4000": null, "agx_orin_64gb": 108, "orin_nx_16gb": 12, "orin_nano_8gb": null }
+          }
+        }
       }
     },
     {
@@ -85,13 +137,19 @@
       "name": "Qwen 3 4B",
       "releaseDate": "2025-04-28",
       "capabilities": { "language": true, "vision": false, "audio": false, "vla": false },
-      "quantization": "NVFP4",
-      "framework": "VLLM",
       "isl": 2048,
       "osl": 128,
-      "performance": {
-        "concurrency1": { "t5000": 68, "t4000": 55, "agx_orin_64gb": 50, "orin_nx_16gb": 17, "orin_nano_8gb": null },
-        "concurrency8": { "t5000": 311, "t4000": 258, "agx_orin_64gb": 222, "orin_nx_16gb": 35, "orin_nano_8gb": null }
+      "engines": {
+        "vLLM": {
+          "NVFP4": {
+            "concurrency1": { "t5000": 68, "t4000": 55, "agx_orin_64gb": null, "orin_nx_16gb": null, "orin_nano_8gb": null },
+            "concurrency8": { "t5000": 311, "t4000": 258, "agx_orin_64gb": null, "orin_nx_16gb": null, "orin_nano_8gb": null }
+          },
+          "W4A16": {
+            "concurrency1": { "t5000": null, "t4000": null, "agx_orin_64gb": 50, "orin_nx_16gb": 17, "orin_nano_8gb": null },
+            "concurrency8": { "t5000": null, "t4000": null, "agx_orin_64gb": 222, "orin_nx_16gb": 35, "orin_nano_8gb": null }
+          }
+        }
       }
     },
     {
@@ -99,13 +157,19 @@
       "name": "Qwen 3 8B",
       "releaseDate": "2025-04-28",
       "capabilities": { "language": true, "vision": false, "audio": false, "vla": false },
-      "quantization": "NVFP4",
-      "framework": "VLLM",
       "isl": 2048,
       "osl": 128,
-      "performance": {
-        "concurrency1": { "t5000": 41, "t4000": 35, "agx_orin_64gb": 30, "orin_nx_16gb": 9, "orin_nano_8gb": null },
-        "concurrency8": { "t5000": 241, "t4000": 200, "agx_orin_64gb": 157, "orin_nx_16gb": 22, "orin_nano_8gb": null }
+      "engines": {
+        "vLLM": {
+          "NVFP4": {
+            "concurrency1": { "t5000": 41, "t4000": 35, "agx_orin_64gb": null, "orin_nx_16gb": null, "orin_nano_8gb": null },
+            "concurrency8": { "t5000": 241, "t4000": 200, "agx_orin_64gb": null, "orin_nx_16gb": null, "orin_nano_8gb": null }
+          },
+          "W4A16": {
+            "concurrency1": { "t5000": null, "t4000": null, "agx_orin_64gb": 30, "orin_nx_16gb": 9, "orin_nano_8gb": null },
+            "concurrency8": { "t5000": null, "t4000": null, "agx_orin_64gb": 157, "orin_nx_16gb": 22, "orin_nano_8gb": null }
+          }
+        }
       }
     },
     {
@@ -113,13 +177,19 @@
       "name": "Qwen3-30B-A3B",
       "releaseDate": "2025-04-28",
       "capabilities": { "language": true, "vision": false, "audio": false, "vla": false },
-      "quantization": "NVFP4",
-      "framework": "VLLM",
       "isl": 2048,
       "osl": 128,
-      "performance": {
-        "concurrency1": { "t5000": 67, "t4000": 57, "agx_orin_64gb": 55, "orin_nx_16gb": null, "orin_nano_8gb": null },
-        "concurrency8": { "t5000": 242, "t4000": 184, "agx_orin_64gb": 174, "orin_nx_16gb": null, "orin_nano_8gb": null }
+      "engines": {
+        "vLLM": {
+          "NVFP4": {
+            "concurrency1": { "t5000": 67, "t4000": 57, "agx_orin_64gb": null, "orin_nx_16gb": null, "orin_nano_8gb": null },
+            "concurrency8": { "t5000": 242, "t4000": 184, "agx_orin_64gb": null, "orin_nx_16gb": null, "orin_nano_8gb": null }
+          },
+          "W4A16": {
+            "concurrency1": { "t5000": null, "t4000": null, "agx_orin_64gb": 55, "orin_nx_16gb": null, "orin_nano_8gb": null },
+            "concurrency8": { "t5000": null, "t4000": null, "agx_orin_64gb": 174, "orin_nx_16gb": null, "orin_nano_8gb": null }
+          }
+        }
       }
     },
     {
@@ -127,13 +197,19 @@
       "name": "Qwen3-32B",
       "releaseDate": "2025-04-28",
       "capabilities": { "language": true, "vision": false, "audio": false, "vla": false },
-      "quantization": "NVFP4",
-      "framework": "VLLM",
       "isl": 2048,
       "osl": 128,
-      "performance": {
-        "concurrency1": { "t5000": 12, "t4000": 12, "agx_orin_64gb": 7, "orin_nx_16gb": null, "orin_nano_8gb": null },
-        "concurrency8": { "t5000": 77, "t4000": 63, "agx_orin_64gb": 17, "orin_nx_16gb": null, "orin_nano_8gb": null }
+      "engines": {
+        "vLLM": {
+          "NVFP4": {
+            "concurrency1": { "t5000": 12, "t4000": 12, "agx_orin_64gb": null, "orin_nx_16gb": null, "orin_nano_8gb": null },
+            "concurrency8": { "t5000": 77, "t4000": 63, "agx_orin_64gb": null, "orin_nx_16gb": null, "orin_nano_8gb": null }
+          },
+          "W4A16": {
+            "concurrency1": { "t5000": null, "t4000": null, "agx_orin_64gb": 7, "orin_nx_16gb": null, "orin_nano_8gb": null },
+            "concurrency8": { "t5000": null, "t4000": null, "agx_orin_64gb": 17, "orin_nx_16gb": null, "orin_nano_8gb": null }
+          }
+        }
       }
     },
     {
@@ -141,13 +217,19 @@
       "name": "Qwen3.5-35B-A3B",
       "releaseDate": "2026-02-27",
       "capabilities": { "language": true, "vision": false, "audio": false, "vla": false },
-      "quantization": "NVFP4",
-      "framework": "VLLM",
       "isl": 2048,
       "osl": 128,
-      "performance": {
-        "concurrency1": { "t5000": 35, "t4000": null, "agx_orin_64gb": 30, "orin_nx_16gb": null, "orin_nano_8gb": null },
-        "concurrency8": { "t5000": 125, "t4000": null, "agx_orin_64gb": 80, "orin_nx_16gb": null, "orin_nano_8gb": null }
+      "engines": {
+        "vLLM": {
+          "NVFP4": {
+            "concurrency1": { "t5000": 35, "t4000": null, "agx_orin_64gb": null, "orin_nx_16gb": null, "orin_nano_8gb": null },
+            "concurrency8": { "t5000": 125, "t4000": null, "agx_orin_64gb": null, "orin_nx_16gb": null, "orin_nano_8gb": null }
+          },
+          "W4A16": {
+            "concurrency1": { "t5000": null, "t4000": null, "agx_orin_64gb": 30, "orin_nx_16gb": null, "orin_nano_8gb": null },
+            "concurrency8": { "t5000": null, "t4000": null, "agx_orin_64gb": 80, "orin_nx_16gb": null, "orin_nano_8gb": null }
+          }
+        }
       }
     },
     {
@@ -155,13 +237,19 @@
       "name": "Qwen3.5-27B",
       "releaseDate": "2026-02-27",
       "capabilities": { "language": true, "vision": false, "audio": false, "vla": false },
-      "quantization": "NVFP4",
-      "framework": "VLLM",
       "isl": 2048,
       "osl": 128,
-      "performance": {
-        "concurrency1": { "t5000": 14, "t4000": null, "agx_orin_64gb": 9, "orin_nx_16gb": null, "orin_nano_8gb": null },
-        "concurrency8": { "t5000": 77, "t4000": null, "agx_orin_64gb": 41, "orin_nx_16gb": null, "orin_nano_8gb": null }
+      "engines": {
+        "vLLM": {
+          "NVFP4": {
+            "concurrency1": { "t5000": 14, "t4000": null, "agx_orin_64gb": null, "orin_nx_16gb": null, "orin_nano_8gb": null },
+            "concurrency8": { "t5000": 77, "t4000": null, "agx_orin_64gb": null, "orin_nx_16gb": null, "orin_nano_8gb": null }
+          },
+          "W4A16": {
+            "concurrency1": { "t5000": null, "t4000": null, "agx_orin_64gb": 9, "orin_nx_16gb": null, "orin_nano_8gb": null },
+            "concurrency8": { "t5000": null, "t4000": null, "agx_orin_64gb": 41, "orin_nx_16gb": null, "orin_nano_8gb": null }
+          }
+        }
       }
     },
     {
@@ -169,13 +257,19 @@
       "name": "Qwen3-VL-2B",
       "releaseDate": "2025-10-21",
       "capabilities": { "language": true, "vision": true, "audio": false, "vla": false },
-      "quantization": "NVFP4",
-      "framework": "VLLM",
       "isl": 2048,
       "osl": 128,
-      "performance": {
-        "concurrency1": { "t5000": 122, "t4000": 95, "agx_orin_64gb": 60, "orin_nx_16gb": 21, "orin_nano_8gb": null },
-        "concurrency8": { "t5000": 500, "t4000": 423, "agx_orin_64gb": 91, "orin_nx_16gb": 28, "orin_nano_8gb": null }
+      "engines": {
+        "vLLM": {
+          "NVFP4": {
+            "concurrency1": { "t5000": 122, "t4000": 95, "agx_orin_64gb": null, "orin_nx_16gb": null, "orin_nano_8gb": null },
+            "concurrency8": { "t5000": 500, "t4000": 423, "agx_orin_64gb": null, "orin_nx_16gb": null, "orin_nano_8gb": null }
+          },
+          "W4A16": {
+            "concurrency1": { "t5000": null, "t4000": null, "agx_orin_64gb": 60, "orin_nx_16gb": 21, "orin_nano_8gb": null },
+            "concurrency8": { "t5000": null, "t4000": null, "agx_orin_64gb": 91, "orin_nx_16gb": 28, "orin_nano_8gb": null }
+          }
+        }
       }
     },
     {
@@ -183,13 +277,15 @@
       "name": "Qwen3-VL-4B",
       "releaseDate": "2025-10-15",
       "capabilities": { "language": true, "vision": true, "audio": true, "vla": false },
-      "quantization": "w4a16",
-      "framework": "VLLM",
       "isl": 2048,
       "osl": 128,
-      "performance": {
-        "concurrency1": { "t5000": 69, "t4000": 53, "agx_orin_64gb": 47, "orin_nx_16gb": 16, "orin_nano_8gb": null },
-        "concurrency8": { "t5000": 318, "t4000": 257, "agx_orin_64gb": 214, "orin_nx_16gb": 35, "orin_nano_8gb": null }
+      "engines": {
+        "vLLM": {
+          "W4A16": {
+            "concurrency1": { "t5000": 69, "t4000": 53, "agx_orin_64gb": 47, "orin_nx_16gb": 16, "orin_nano_8gb": null },
+            "concurrency8": { "t5000": 318, "t4000": 257, "agx_orin_64gb": 214, "orin_nx_16gb": 35, "orin_nano_8gb": null }
+          }
+        }
       }
     },
     {
@@ -197,13 +293,19 @@
       "name": "Qwen3-VL-8B",
       "releaseDate": "2025-10-15",
       "capabilities": { "language": true, "vision": true, "audio": false, "vla": false },
-      "quantization": "NVFP4",
-      "framework": "VLLM",
       "isl": 2048,
       "osl": 128,
-      "performance": {
-        "concurrency1": { "t5000": 41, "t4000": 33, "agx_orin_64gb": 28, "orin_nx_16gb": 9, "orin_nano_8gb": null },
-        "concurrency8": { "t5000": 224, "t4000": 177, "agx_orin_64gb": 149, "orin_nx_16gb": 20, "orin_nano_8gb": null }
+      "engines": {
+        "vLLM": {
+          "NVFP4": {
+            "concurrency1": { "t5000": 41, "t4000": 33, "agx_orin_64gb": null, "orin_nx_16gb": null, "orin_nano_8gb": null },
+            "concurrency8": { "t5000": 224, "t4000": 177, "agx_orin_64gb": null, "orin_nx_16gb": null, "orin_nano_8gb": null }
+          },
+          "W4A16": {
+            "concurrency1": { "t5000": null, "t4000": null, "agx_orin_64gb": 28, "orin_nx_16gb": 9, "orin_nano_8gb": null },
+            "concurrency8": { "t5000": null, "t4000": null, "agx_orin_64gb": 149, "orin_nx_16gb": 20, "orin_nano_8gb": null }
+          }
+        }
       }
     },
     {
@@ -211,13 +313,15 @@
       "name": "Qwen3-Omni-30B-A3B",
       "releaseDate": "2025-09-22",
       "capabilities": { "language": true, "vision": true, "audio": true, "vla": false },
-      "quantization": "NVFP4",
-      "framework": "VLLM",
       "isl": 2048,
       "osl": 128,
-      "performance": {
-        "concurrency1": { "t5000": null, "t4000": null, "agx_orin_64gb": null, "orin_nx_16gb": null, "orin_nano_8gb": null },
-        "concurrency8": { "t5000": null, "t4000": null, "agx_orin_64gb": null, "orin_nx_16gb": null, "orin_nano_8gb": null }
+      "engines": {
+        "vLLM": {
+          "NVFP4": {
+            "concurrency1": { "t5000": null, "t4000": null, "agx_orin_64gb": null, "orin_nx_16gb": null, "orin_nano_8gb": null },
+            "concurrency8": { "t5000": null, "t4000": null, "agx_orin_64gb": null, "orin_nx_16gb": null, "orin_nano_8gb": null }
+          }
+        }
       }
     },
     {
@@ -225,13 +329,15 @@
       "name": "Gemma 4 E2B",
       "releaseDate": "2026-04-02",
       "capabilities": { "language": true, "vision": true, "audio": true, "vla": false },
-      "quantization": "Q8_0",
-      "framework": "llama.cpp",
       "isl": 2048,
       "osl": 128,
-      "performance": {
-        "concurrency1": { "t5000": null, "t4000": null, "agx_orin_64gb": 35, "orin_nx_16gb": null, "orin_nano_8gb": null },
-        "concurrency8": { "t5000": null, "t4000": null, "agx_orin_64gb": null, "orin_nx_16gb": null, "orin_nano_8gb": null }
+      "engines": {
+        "llama.cpp": {
+          "Q8_0": {
+            "concurrency1": { "t5000": null, "t4000": null, "agx_orin_64gb": 35, "orin_nx_16gb": null, "orin_nano_8gb": null },
+            "concurrency8": { "t5000": null, "t4000": null, "agx_orin_64gb": null, "orin_nx_16gb": null, "orin_nano_8gb": null }
+          }
+        }
       }
     },
     {
@@ -239,13 +345,19 @@
       "name": "Gemma 4 26B-A4B",
       "releaseDate": "2026-04-02",
       "capabilities": { "language": true, "vision": true, "audio": false, "vla": false },
-      "quantization": "AWQ-4bit / NVFP4",
-      "framework": "VLLM",
       "isl": 2048,
       "osl": 128,
-      "performance": {
-        "concurrency1": { "t5000": 50, "t4000": null, "agx_orin_64gb": 32, "orin_nx_16gb": null, "orin_nano_8gb": null },
-        "concurrency8": { "t5000": 180, "t4000": null, "agx_orin_64gb": 110, "orin_nx_16gb": null, "orin_nano_8gb": null }
+      "engines": {
+        "vLLM": {
+          "NVFP4": {
+            "concurrency1": { "t5000": 50, "t4000": null, "agx_orin_64gb": null, "orin_nx_16gb": null, "orin_nano_8gb": null },
+            "concurrency8": { "t5000": 180, "t4000": null, "agx_orin_64gb": null, "orin_nx_16gb": null, "orin_nano_8gb": null }
+          },
+          "AWQ": {
+            "concurrency1": { "t5000": null, "t4000": null, "agx_orin_64gb": 32, "orin_nx_16gb": null, "orin_nano_8gb": null },
+            "concurrency8": { "t5000": null, "t4000": null, "agx_orin_64gb": 110, "orin_nx_16gb": null, "orin_nano_8gb": null }
+          }
+        }
       }
     },
     {
@@ -253,13 +365,19 @@
       "name": "Gemma 4 31B",
       "releaseDate": "2026-04-02",
       "capabilities": { "language": true, "vision": true, "audio": false, "vla": false },
-      "quantization": "AWQ-4bit / NVFP4",
-      "framework": "VLLM",
       "isl": 2048,
       "osl": 128,
-      "performance": {
-        "concurrency1": { "t5000": 7, "t4000": null, "agx_orin_64gb": 5, "orin_nx_16gb": null, "orin_nano_8gb": null },
-        "concurrency8": { "t5000": 43, "t4000": null, "agx_orin_64gb": 15, "orin_nx_16gb": null, "orin_nano_8gb": null }
+      "engines": {
+        "vLLM": {
+          "NVFP4": {
+            "concurrency1": { "t5000": 7, "t4000": null, "agx_orin_64gb": null, "orin_nx_16gb": null, "orin_nano_8gb": null },
+            "concurrency8": { "t5000": 43, "t4000": null, "agx_orin_64gb": null, "orin_nx_16gb": null, "orin_nano_8gb": null }
+          },
+          "AWQ": {
+            "concurrency1": { "t5000": null, "t4000": null, "agx_orin_64gb": 5, "orin_nx_16gb": null, "orin_nano_8gb": null },
+            "concurrency8": { "t5000": null, "t4000": null, "agx_orin_64gb": 15, "orin_nx_16gb": null, "orin_nano_8gb": null }
+          }
+        }
       }
     },
     {
@@ -267,13 +385,19 @@
       "name": "GPT-OSS-20B",
       "releaseDate": "2025-08-05",
       "capabilities": { "language": true, "vision": false, "audio": false, "vla": false },
-      "quantization": "MXFP4",
-      "framework": "VLLM",
       "isl": 2048,
       "osl": 128,
-      "performance": {
-        "concurrency1": { "t5000": 59, "t4000": 42, "agx_orin_64gb": 39, "orin_nx_16gb": null, "orin_nano_8gb": null },
-        "concurrency8": { "t5000": 215, "t4000": 160, "agx_orin_64gb": 147, "orin_nx_16gb": null, "orin_nano_8gb": null }
+      "engines": {
+        "vLLM": {
+          "MXFP4": {
+            "concurrency1": { "t5000": 59, "t4000": 42, "agx_orin_64gb": null, "orin_nx_16gb": null, "orin_nano_8gb": null },
+            "concurrency8": { "t5000": 215, "t4000": 160, "agx_orin_64gb": null, "orin_nx_16gb": null, "orin_nano_8gb": null }
+          },
+          "W4A16": {
+            "concurrency1": { "t5000": null, "t4000": null, "agx_orin_64gb": 39, "orin_nx_16gb": null, "orin_nano_8gb": null },
+            "concurrency8": { "t5000": null, "t4000": null, "agx_orin_64gb": 147, "orin_nx_16gb": null, "orin_nano_8gb": null }
+          }
+        }
       }
     },
     {
@@ -281,13 +405,15 @@
       "name": "Pi 0.5",
       "releaseDate": "2025-04-22",
       "capabilities": { "language": false, "vision": false, "audio": false, "vla": true },
-      "quantization": "NVFP4 + FP8",
-      "framework": "TRT",
       "isl": null,
       "osl": null,
-      "performance": {
-        "concurrency1": { "t5000": 117, "t4000": 94, "agx_orin_64gb": null, "orin_nx_16gb": null, "orin_nano_8gb": null },
-        "concurrency8": { "t5000": null, "t4000": null, "agx_orin_64gb": null, "orin_nx_16gb": null, "orin_nano_8gb": null }
+      "engines": {
+        "TRT": {
+          "NVFP4 + FP8": {
+            "concurrency1": { "t5000": 117, "t4000": 94, "agx_orin_64gb": null, "orin_nx_16gb": null, "orin_nano_8gb": null },
+            "concurrency8": { "t5000": null, "t4000": null, "agx_orin_64gb": null, "orin_nx_16gb": null, "orin_nano_8gb": null }
+          }
+        }
       }
     }
   ]

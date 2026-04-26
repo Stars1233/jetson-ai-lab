@@ -38,6 +38,7 @@ Desktop.ini
 # IDE / Editor
 .vscode/
 .idea/
+.cursor/
 *.swp
 *.swo
 *~
@@ -66,4 +67,13 @@ coverage/
 # Misc
 *.pem
 .certificates/
+
+# Screenshot / browser automation outputs (agent tooling, not site assets)
+.playwright-mcp/
+screenshots/
+.screenshots/
+
+# Merge/rebase scratch dirs and AI working files
+_merge_backup/
+*.md.bak
 

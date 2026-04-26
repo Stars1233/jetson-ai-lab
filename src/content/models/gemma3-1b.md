@@ -10,6 +10,10 @@ type: "Text"
 vision_capable: false
 memory_requirements: "2GB RAM"
 precision: "FP16"
+parameters: "1B"
+modalities: ["Text"]
+context_length: "32K"
+license: "Gemma Terms of Service"
 model_size: "1.2GB"
 hf_checkpoint: "google/gemma-3-1b-it"
 minimum_jetson: "Orin Nano"

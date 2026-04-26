@@ -10,6 +10,10 @@ type: "Multimodal"
 vision_capable: true
 memory_requirements: "8GB RAM"
 precision: "AWQ 4-bit"
+parameters: "8B"
+modalities: ["Text", "Image"]
+context_length: "256K"
+license: "Apache 2.0"
 model_size: "5GB"
 hf_checkpoint: "cpatonn/Qwen3-VL-8B-Instruct-AWQ-4bit"
 minimum_jetson: "Orin NX"
@@ -32,6 +36,9 @@ supported_inference_engines:
         --runtime=nvidia --network host \
         ghcr.io/nvidia-ai-iot/vllm:latest-jetson-thor \
         vllm serve cpatonn/Qwen3-VL-8B-Instruct-AWQ-4bit
+benchmark_key: "Qwen3-VL-8B"
+benchmark_series:
+  - "Qwen3-VL-4B"
 ---
 
 Meet Qwen3-VL — the most powerful vision-language model in the Qwen series to date.

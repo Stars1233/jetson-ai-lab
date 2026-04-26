@@ -10,6 +10,10 @@ type: "Multimodal"
 vision_capable: true
 memory_requirements: "12GB RAM"
 precision: "W4A16"
+parameters: "12B"
+modalities: ["Text", "Image"]
+context_length: "128K"
+license: "Gemma Terms of Service"
 model_size: "7GB"
 hf_checkpoint: "RedHatAI/gemma-3-12b-it-quantized.w4a16"
 minimum_jetson: "Orin NX"

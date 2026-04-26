@@ -10,6 +10,10 @@ type: "Multimodal"
 vision_capable: true
 memory_requirements: "32GB RAM"
 precision: "Q4_K_M GGUF"
+parameters: "31B"
+modalities: ["Text", "Image"]
+context_length: "256K"
+license: "Apache 2.0"
 model_size: "18.7GB"
 hf_checkpoint: "ggml-org/gemma-4-31B-it-GGUF"
 huggingface_url: "https://huggingface.co/google/gemma-4-31B-it"
@@ -60,6 +64,10 @@ serving:
           -v $HOME/.cache/huggingface:/root/.cache/huggingface \
           ghcr.io/nvidia-ai-iot/llama_cpp:latest-jetson-thor \
           llama-server -hf ggml-org/gemma-4-31B-it-GGUF:Q4_K_M
+benchmark_key: "Gemma 4 31B"
+benchmark_series:
+  - "Gemma 4 E2B"
+  - "Gemma 4 26B-A4B"
 ---
 
 Gemma 4 31B is the largest model in the current Gemma 4 set here, and it can be served on Jetson with `llama.cpp`. In Google's launch post, 31B is the flagship dense model in the family, aimed at the best possible raw quality for local reasoning, coding, and agentic workflows.
