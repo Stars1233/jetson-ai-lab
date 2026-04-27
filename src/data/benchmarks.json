@@ -217,33 +217,33 @@
         "vLLM": {
           "BF16": {
             "concurrency1": {
-              "t5000": 35,
-              "t4000": 28,
-              "agx_orin_64gb": 18,
+              "t5000": null,
+              "t4000": null,
+              "agx_orin_64gb": null,
               "orin_nx_16gb": null,
               "orin_nano_8gb": null
             },
             "concurrency8": {
-              "t5000": 120,
-              "t4000": 95,
-              "agx_orin_64gb": 58,
+              "t5000": null,
+              "t4000": null,
+              "agx_orin_64gb": null,
               "orin_nx_16gb": null,
               "orin_nano_8gb": null
             }
           },
           "FP8": {
             "concurrency1": {
-              "t5000": 52,
-              "t4000": 42,
-              "agx_orin_64gb": 28,
-              "orin_nx_16gb": 12,
+              "t5000": null,
+              "t4000": null,
+              "agx_orin_64gb": null,
+              "orin_nx_16gb": null,
               "orin_nano_8gb": null
             },
             "concurrency8": {
-              "t5000": 195,
-              "t4000": 155,
-              "agx_orin_64gb": 92,
-              "orin_nx_16gb": 28,
+              "t5000": null,
+              "t4000": null,
+              "agx_orin_64gb": null,
+              "orin_nx_16gb": null,
               "orin_nano_8gb": null
             }
           },
