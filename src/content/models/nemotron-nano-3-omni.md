@@ -15,8 +15,8 @@ modalities: ["Text", "Image", "Audio", "Video"]
 context_length: "32K"
 license: "NVIDIA Open Model License"
 model_size: "21GB"
-hf_checkpoint: "nvidia/NVIDIA-Nemotron-3-Nano-Omni-30B-A3B-Reasoning-NVFP4"
-huggingface_url: "https://huggingface.co/nvidia/NVIDIA-Nemotron-3-Nano-Omni-30B-A3B-Reasoning-NVFP4"
+hf_checkpoint: "nvidia/Nemotron-3-Nano-Omni-30B-A3B-Reasoning-NVFP4"
+huggingface_url: "https://huggingface.co/nvidia/Nemotron-3-Nano-Omni-30B-A3B-Reasoning-NVFP4"
 minimum_jetson: "Orin AGX"
 supported_inference_engines:
   - engine: "vLLM"
@@ -30,7 +30,7 @@ supported_inference_engines:
         --runtime=nvidia --network host \
         -v $HOME/.cache/huggingface:/root/.cache/huggingface \
         ghcr.io/nvidia-ai-iot/vllm:latest-jetson-orin \
-        bash -c "pip install -q 'vllm[audio]' && vllm serve nvidia/NVIDIA-Nemotron-3-Nano-Omni-30B-A3B-Reasoning-FP8 \
+        bash -c "pip install -q 'vllm[audio]' && vllm serve nvidia/Nemotron-3-Nano-Omni-30B-A3B-Reasoning-FP8 \
           --trust-remote-code \
           --gpu-memory-utilization 0.65 \
           --max-model-len 32768 \
@@ -42,7 +42,7 @@ supported_inference_engines:
         --runtime=nvidia --network host \
         -v $HOME/.cache/huggingface:/root/.cache/huggingface \
         vllm/vllm-openai:v0.20.0-ubuntu2404 \
-        bash -c "pip install -q 'vllm[audio]' && vllm serve nvidia/NVIDIA-Nemotron-3-Nano-Omni-30B-A3B-Reasoning-NVFP4 \
+        bash -c "pip install -q 'vllm[audio]' && vllm serve nvidia/Nemotron-3-Nano-Omni-30B-A3B-Reasoning-NVFP4 \
           --trust-remote-code \
           --gpu-memory-utilization 0.65 \
           --max-model-len 32768 \
@@ -90,7 +90,7 @@ sudo docker run -it --rm --pull always \
   --runtime=nvidia --network host \
   -v $HOME/.cache/huggingface:/root/.cache/huggingface \
   ghcr.io/nvidia-ai-iot/vllm:latest-jetson-orin \
-  bash -c "pip install -q 'vllm[audio]' && vllm serve nvidia/NVIDIA-Nemotron-3-Nano-Omni-30B-A3B-Reasoning-FP8 \
+  bash -c "pip install -q 'vllm[audio]' && vllm serve nvidia/Nemotron-3-Nano-Omni-30B-A3B-Reasoning-FP8 \
     --trust-remote-code \
     --gpu-memory-utilization 0.65 \
     --max-model-len 32768 \
@@ -107,7 +107,7 @@ sudo docker run -it --rm --pull always \
   --runtime=nvidia --network host \
   -v $HOME/.cache/huggingface:/root/.cache/huggingface \
   vllm/vllm-openai:v0.20.0-ubuntu2404 \
-  bash -c "pip install -q 'vllm[audio]' && vllm serve nvidia/NVIDIA-Nemotron-3-Nano-Omni-30B-A3B-Reasoning-NVFP4 \
+  bash -c "pip install -q 'vllm[audio]' && vllm serve nvidia/Nemotron-3-Nano-Omni-30B-A3B-Reasoning-NVFP4 \
     --trust-remote-code \
     --gpu-memory-utilization 0.65 \
     --max-model-len 32768 \
