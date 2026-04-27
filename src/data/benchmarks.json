@@ -250,14 +250,14 @@
           "NVFP4": {
             "concurrency1": {
               "t5000": 1077,
-              "t4000": 62,
+              "t4000": 880,
               "agx_orin_64gb": null,
               "orin_nx_16gb": null,
               "orin_nano_8gb": null
             },
             "concurrency8": {
               "t5000": 3081,
-              "t4000": 248,
+              "t4000": 2506,
               "agx_orin_64gb": null,
               "orin_nx_16gb": null,
               "orin_nano_8gb": null
