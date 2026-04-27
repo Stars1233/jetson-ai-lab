@@ -40,13 +40,19 @@ const modelColors = allModels.map((_, i) =>
 	i === 0 ? MAIN_COLOR : (SERIES_COLORS[i - 1] ?? SERIES_COLORS[SERIES_COLORS.length - 1]),
 );
 
-// Collect all engine names across all models (preserving first-seen order)
-const engineNames: string[] = [];
+const ENGINE_ORDER = ['vLLM', 'SGLang', 'llama.cpp', 'Ollama', 'Edge-LLM', 'TRT'];
+
+// Collect all engine names across all models, sorted by preferred order
+const engineNamesSet: string[] = [];
 for (const m of allModels) {
 	for (const e of Object.keys(m.engines)) {
-		if (!engineNames.includes(e)) engineNames.push(e);
+		if (!engineNamesSet.includes(e)) engineNamesSet.push(e);
 	}
 }
+const engineNames = engineNamesSet.sort(
+	(a, b) => (ENGINE_ORDER.indexOf(a) === -1 ? 999 : ENGINE_ORDER.indexOf(a))
+		- (ENGINE_ORDER.indexOf(b) === -1 ? 999 : ENGINE_ORDER.indexOf(b)),
+);
 
 const hasAnyData = allModels.some((m) =>
 	Object.values(m.engines).some((quants) =>
@@ -115,7 +121,8 @@ const ENGINE_COLORS_MAP: Record<string, string> = {
 						Benchmark
 					</h2>
 					<p class="text-sm text-nvidia-gray-500">
-						<span id="bench-engine-label">{firstEngine}</span>
+						<strong class="text-nvidia-black">{entry.name}</strong>
+						&nbsp;&middot;&nbsp;<span id="bench-engine-label">{firstEngine}</span>
 						<span id="bench-quant-wrapper" class={firstEngineQuantLabel ? '' : 'hidden'}>
 							&nbsp;&middot;&nbsp;<span id="bench-quant-label" class="font-mono">{firstEngineQuantLabel}</span>
 						</span>
