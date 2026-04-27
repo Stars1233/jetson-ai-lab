@@ -9,7 +9,6 @@ order: 1
 type: "Text"
 vision_capable: false
 memory_requirements: "20GB RAM"
-precision: "NVFP4"
 model_size: "24GB"
 hf_checkpoint: "Qwen/Qwen3.6-35B-A3B"
 huggingface_url: "https://huggingface.co/Qwen/Qwen3.6-35B-A3B"

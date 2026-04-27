@@ -65,6 +65,12 @@ const servingEntrySchema = z.object({
 	run_commands_by_module: z.record(z.string()).optional(),
 });
 
+const benchmarkPlatformSchema = z.object({
+	concurrency1: z.number(),
+	concurrency8: z.number(),
+	ttftMs: z.number(),
+});
+
 const modelsSchema = z.object({
 	title: z.string(),
 	model_id: z.string().optional(),
