@@ -9,12 +9,11 @@ order: 1
 type: "Text"
 vision_capable: false
 memory_requirements: "20GB RAM"
-precision: "NVFP4"
+precision: "NVFP4 / AWQ"
 model_size: "24GB"
 hf_checkpoint: "Qwen/Qwen3.6-35B-A3B"
 huggingface_url: "https://huggingface.co/Qwen/Qwen3.6-35B-A3B"
 minimum_jetson: "Orin AGX"
-precision: "NVFP4 / AWQ"
 supported_inference_engines:
   - engine: "vLLM"
     type: "Container"
