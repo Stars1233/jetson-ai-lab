@@ -196,6 +196,7 @@ const ENGINE_COLORS_MAP: Record<string, string> = {
 	let conc = 'c1';
 	let currentEngine = benchData.engineNames[0];
 	let yAxisFixed = false;
+	let showShadow = false;
 
 	const ENGINE_COLORS = {
 		'vLLM':      '#30a3ff',
@@ -413,7 +414,7 @@ const ENGINE_COLORS_MAP: Record<string, string> = {
 				const rx = Math.min(3, barW / 5);
 
 				s += `<rect x="${x}" y="${by}" width="${barW}" height="${bh}" fill="${bar.color}" rx="${rx}"
-					class="bbar" filter="url(#bar-shadow)" style="cursor:pointer;animation-delay:${bi * 40}ms"
+					class="bbar"${showShadow ? ' filter="url(#bar-shadow)"' : ''} style="cursor:pointer;animation-delay:${bi * 40}ms"
 					data-tip="${bar.label}: ${val} ${benchData.unit}"/>`;
 				if (bh > 20) {
 					s += `<text x="${x + barW / 2}" y="${by - 4}" text-anchor="middle"
@@ -476,7 +477,11 @@ const ENGINE_COLORS_MAP: Record<string, string> = {
 	document.getElementById('bench-btn-c8').addEventListener('click', () => { conc = 'c8'; render(); });
 
 	document.querySelectorAll('#bench-engine-toggle [data-engine]').forEach((btn) => {
-		btn.addEventListener('click', () => { currentEngine = btn.dataset.engine; render(); });
+		btn.addEventListener('click', (e) => {
+			if (e.ctrlKey) { showShadow = !showShadow; render(); return; }
+			currentEngine = btn.dataset.engine;
+			render();
+		});
 	});
 
 	// Lock button uses event delegation since SVG is rebuilt on each render

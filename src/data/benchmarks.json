@@ -324,6 +324,34 @@
     },
     {
       "family": "Qwen",
+      "name": "Qwen3.6-35B-A3B",
+      "releaseDate": "2026-04-25",
+      "capabilities": { "language": true, "vision": false, "audio": false, "vla": false },
+      "quantization": "NVFP4",
+      "framework": "VLLM",
+      "isl": 2048,
+      "osl": 128,
+      "performance": {
+        "concurrency1": { "t5000": 42, "t4000": null, "agx_orin_64gb": 30, "orin_nx_16gb": null, "orin_nano_8gb": null },
+        "concurrency8": { "t5000": 136, "t4000": null, "agx_orin_64gb": 133, "orin_nx_16gb": null, "orin_nano_8gb": null }
+      }
+    },
+    {
+      "family": "Qwen",
+      "name": "Qwen3.6-27B",
+      "releaseDate": "2026-04-25",
+      "capabilities": { "language": true, "vision": false, "audio": false, "vla": false },
+      "quantization": "NVFP4",
+      "framework": "VLLM",
+      "isl": 2048,
+      "osl": 128,
+      "performance": {
+        "concurrency1": { "t5000": 13, "t4000": null, "agx_orin_64gb": null, "orin_nx_16gb": null, "orin_nano_8gb": null },
+        "concurrency8": { "t5000": 55, "t4000": null, "agx_orin_64gb": null, "orin_nx_16gb": null, "orin_nano_8gb": null }
+      }
+    },
+    {
+      "family": "Qwen",
       "name": "Qwen3-VL-2B",
       "releaseDate": "2025-10-21",
       "capabilities": { "language": true, "vision": true, "audio": false, "vla": false },

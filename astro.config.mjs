@@ -7,6 +7,19 @@ import rehypeMermaid from 'rehype-mermaid';
 export default defineConfig({
   integrations: [tailwind(), mdx(), sitemap()],
   site: 'https://www.jetson-ai-lab.com',
+  /** Reduce dev restarts from tooling writing under the repo (Windows file watchers are noisy). */
+  vite: {
+    server: {
+      watch: {
+        ignored: [
+          '**/.cursor/**',
+          '**/_merge_backup/**',
+          '**/dist/**',
+          '**/node_modules/**',
+        ],
+      },
+    },
+  },
   markdown: {
     syntaxHighlight: {
       type: 'shiki',

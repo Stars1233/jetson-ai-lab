@@ -91,7 +91,8 @@ const showCallApiStyleTabs =
 			Call the model over Web API
 		</h3>
 		<p class="text-sm text-nvidia-gray-600 mb-8">
-			Copy the command below and paste into your terminal to make a Web API request to the model you just served.
+			Copy a client command below and paste it into your terminal to make a Web API request to the model you just
+			served.
 		</p>
 
 		{ccIntro && fromFrontmatter.length > 0 && (
@@ -265,7 +266,7 @@ const showCallApiStyleTabs =
 												d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"
 											/>
 										</svg>
-										<span data-call-copy-label>Copy command</span>
+										<span data-call-copy-label>Copy client command</span>
 									</button>
 									<pre
 										class="text-sm font-mono text-slate-200 whitespace-pre-wrap break-words [overflow-wrap:anywhere] p-4 m-0"
@@ -322,7 +323,7 @@ const showCallApiStyleTabs =
 						callCopyLabelTimer = null;
 					}
 					root.querySelectorAll<HTMLElement>('[data-call-copy-label]').forEach((el) => {
-						el.textContent = 'Copy command';
+						el.textContent = 'Copy client command';
 					});
 				}
 
@@ -488,7 +489,7 @@ const showCallApiStyleTabs =
 						if (label) {
 							label.textContent = 'Copied';
 							callCopyLabelTimer = setTimeout(() => {
-								label.textContent = 'Copy command';
+								label.textContent = 'Copy client command';
 								callCopyLabelTimer = null;
 							}, 1200);
 						}

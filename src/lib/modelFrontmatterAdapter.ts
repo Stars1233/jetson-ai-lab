@@ -1,4 +1,9 @@
-import type { SupportedEngineEntry } from './inferenceCommands';
+import {
+	engineSupportsModule,
+	serveCommandForMatrixCell,
+	visibleModulesForEngines,
+	type SupportedEngineEntry,
+} from './inferenceCommands';
 
 /** Shape needed to resolve engines (matches model collection data; avoid importing content/config from lib). */
 export interface ModelEnginesSource {
@@ -47,8 +52,32 @@ export function getSupportedInferenceEngines(data: ModelEnginesSource): Supporte
 	return data.supported_inference_engines ?? [];
 }
 
+/** Matrix cells with a non-empty serve command (same idea as catalog union, per engine). */
+function runnableMatrixCellCountForEngine(
+	allEngines: SupportedEngineEntry[],
+	entry: SupportedEngineEntry
+): number {
+	const mods = visibleModulesForEngines(allEngines);
+	let n = 0;
+	for (const mod of mods) {
+		if (!engineSupportsModule(entry, mod.id)) continue;
+		if (!serveCommandForMatrixCell(entry, mod).trim()) continue;
+		n++;
+	}
+	return n;
+}
+
+/**
+ * Order engines for the serve matrix / Run modal.
+ * Prefer an engine that supports **more** Jetson module tabs (aligns default UI with catalog “any engine” checks),
+ * then vLLM among ties, then name.
+ */
 export function sortEnginesForUi(engines: SupportedEngineEntry[]): SupportedEngineEntry[] {
+	if (engines.length <= 1) return [...engines];
 	return [...engines].sort((a, b) => {
+		const ca = runnableMatrixCellCountForEngine(engines, a);
+		const cb = runnableMatrixCellCountForEngine(engines, b);
+		if (cb !== ca) return cb - ca;
 		if (a.engine === 'vLLM') return -1;
 		if (b.engine === 'vLLM') return 1;
 		return a.engine.localeCompare(b.engine);
