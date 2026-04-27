@@ -233,14 +233,14 @@
           },
           "FP8": {
             "concurrency1": {
-              "t5000": null,
+              "t5000": 930,
               "t4000": null,
               "agx_orin_64gb": null,
               "orin_nx_16gb": null,
               "orin_nano_8gb": null
             },
             "concurrency8": {
-              "t5000": null,
+              "t5000": 2208,
               "t4000": null,
               "agx_orin_64gb": null,
               "orin_nx_16gb": null,
