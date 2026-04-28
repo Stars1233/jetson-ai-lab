@@ -13,6 +13,7 @@ interface QuantData {
 	concurrency1: Partial<Record<ProductId, number | null>>;
 	concurrency8: Partial<Record<ProductId, number | null>>;
 	dnr?: string[];
+	oom?: string[];
 }
 
 interface BenchmarkEntry {
@@ -87,6 +88,7 @@ const clientData = hasAnyData
 									c1: Object.fromEntries(PRODUCTS.map((p) => [p.id, qd.concurrency1[p.id] ?? null])),
 									c8: Object.fromEntries(PRODUCTS.map((p) => [p.id, qd.concurrency8[p.id] ?? null])),
 									dnr: qd.dnr ?? [],
+									oom: qd.oom ?? [],
 								},
 							]),
 						),
@@ -246,6 +248,7 @@ const ENGINE_COLORS_MAP: Record<string, string> = {
 				legendColor: getBarColor(q),
 				isMain: true,
 				dnr: new Set(mainQuants[q]?.dnr ?? []),
+				oom: new Set(mainQuants[q]?.oom ?? []),
 				c1: mainQuants[q]?.c1 ?? {},
 				c8: mainQuants[q]?.c8 ?? {},
 			})),
@@ -254,7 +257,7 @@ const ENGINE_COLORS_MAP: Record<string, string> = {
 				const firstQuantName = Object.keys(engineData)[0] ?? null;
 				const firstQuant = Object.values(engineData)[0] ?? { c1: {}, c8: {} };
 				const label = firstQuantName ? `${m.name} (${firstQuantName})` : m.name;
-				return { label, link: m.link ?? null, color: m.color, legendColor: m.color, isMain: false, seriesIndex: si, dnr: new Set(firstQuant.dnr ?? []), c1: firstQuant.c1, c8: firstQuant.c8 };
+				return { label, link: m.link ?? null, color: m.color, legendColor: m.color, isMain: false, seriesIndex: si, dnr: new Set(firstQuant.dnr ?? []), oom: new Set(firstQuant.oom ?? []), c1: firstQuant.c1, c8: firstQuant.c8 };
 			}),
 		];
 	}
@@ -354,7 +357,10 @@ const ENGINE_COLORS_MAP: Record<string, string> = {
 
 		const activeProducts = benchData.products;
 
-		const hasAny = bars.some((b) => activeProducts.some((p) => b[key][p.id] != null));
+		const hasAny = bars.some((b, bi) => {
+			if (!b.isMain && hiddenSeries.has(bi)) return false;
+			return activeProducts.some((p) => b[key][p.id] != null || b.dnr?.has(p.id) || b.oom?.has(p.id));
+		});
 		if (!hasAny) {
 			chartEl.innerHTML = '';
 			noDataEl.classList.remove('hidden');
@@ -478,7 +484,8 @@ const ENGINE_COLORS_MAP: Record<string, string> = {
 				if (!bar.isMain && hiddenSeries.has(bi)) return;
 				const val = bar[key][prod.id];
 				const isDnr = val == null && bar.dnr?.has(prod.id);
-				if (val == null && !isDnr) return;
+				const isOom = val == null && bar.oom?.has(prod.id);
+				if (val == null && !isDnr && !isOom) return;
 
 				const x = barLeft(gi, bi);
 
@@ -486,6 +493,17 @@ const ENGINE_COLORS_MAP: Record<string, string> = {
 					const cx = x + barW / 2;
 					const cy = mt + chartH - 6;
 					s += `<text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="middle" fill="#F87171" font-size="15" font-weight="600" style="cursor:default" data-tip="${bar.label}: Does not run">✕</text>`;
+					return;
+				}
+
+				if (isOom) {
+					const cx = x + barW / 2;
+					const cy = mt + chartH - 14;
+					const rw = 30, rh = 14, rrx = 3;
+					s += `<g style="cursor:default" data-tip="${bar.label}: Out of memory">`;
+					s += `<rect x="${cx - rw/2}" y="${cy - rh/2}" width="${rw}" height="${rh}" rx="${rrx}" fill="#e5ffb8" stroke="#9CA3AF" stroke-width="1" stroke-dasharray="2 2"/>`;
+					s += `<text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="middle" fill="#6B7280" font-size="10" font-weight="600">OOM</text>`;
+					s += `</g>`;
 					return;
 				}
 
