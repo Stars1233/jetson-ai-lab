@@ -213,7 +213,10 @@
               "orin_nx_16gb": null,
               "orin_nano_8gb": null,
               "dgx_spark": 138.6
-            }
+            },
+            "dnr": [
+              "t4000"
+            ]
           },
           "NVFP4": {
             "concurrency1": {
