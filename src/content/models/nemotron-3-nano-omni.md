@@ -17,7 +17,8 @@ license: "NVIDIA Open Model License"
 model_size: "21GB"
 hf_checkpoint: "nvidia/Nemotron-3-Nano-Omni-30B-A3B-Reasoning-NVFP4"
 huggingface_url: "https://huggingface.co/nvidia/Nemotron-3-Nano-Omni-30B-A3B-Reasoning-NVFP4"
-minimum_jetson: "Orin AGX"
+build_nvidia_url: "https://build.nvidia.com/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning"
+minimum_jetson: "Thor"
 supported_inference_engines:
   - engine: "vLLM"
     type: "Container"
@@ -60,20 +61,6 @@ supported_inference_engines:
     modules_supported:
       - thor_t5000
       - thor_t4000
-      - orin_agx_64
-    serve_command_orin: |-
-      sudo docker run -it --rm --pull always \
-        --runtime=nvidia --network host \
-        -v $HOME/.cache/huggingface:/root/.cache/huggingface \
-        ghcr.io/nvidia-ai-iot/llama_cpp:latest-jetson-orin \
-        llama-server \
-          --hf-repo ggml-org/NVIDIA-Nemotron-3-Nano-Omni \
-          --hf-file nemotron-3-nano-omni-ga_v1.0-Q4_K_M.gguf \
-          --host 0.0.0.0 \
-          --port 8080 \
-          -c 8192 \
-          -ngl 999 \
-          --alias my_model
     serve_command_thor: |-
       sudo docker run -it --rm --pull always \
         --runtime=nvidia --network host \
@@ -110,8 +97,7 @@ Nemotron Nano 3 Omni is NVIDIA's multimodal reasoning model combining language, 
 
 ## Supported Platforms
 
-- Jetson Thor (NVFP4, FP8, BF16 — vLLM, SGLang, llama.cpp)
-- Jetson Orin AGX 64GB (llama.cpp)
+- Jetson Thor  
 
 ## Running with vLLM
 
@@ -173,28 +159,9 @@ curl -s http://${JETSON_HOST}:30000/v1/chat/completions \
 
 <div class="device-tabs">
 <div class="device-tab-bar">
-<button class="device-tab active" data-target="orin-llama">Jetson Orin</button>
-<button class="device-tab" data-target="thor-llama">Jetson Thor</button>
+<button class="device-tab active" data-target="thor-llama">Jetson Thor</button>
 </div>
-<div class="device-panel" data-panel="orin-llama">
-
-```bash
-sudo docker run -it --rm --pull always \
-  --runtime=nvidia --network host \
-  -v $HOME/.cache/huggingface:/root/.cache/huggingface \
-  ghcr.io/nvidia-ai-iot/llama_cpp:latest-jetson-orin \
-  llama-server \
-    --hf-repo ggml-org/NVIDIA-Nemotron-3-Nano-Omni \
-    --hf-file nemotron-3-nano-omni-ga_v1.0-Q4_K_M.gguf \
-    --host 0.0.0.0 \
-    --port 8080 \
-    -c 8192 \
-    -ngl 999 \
-    --alias my_model
-```
-
-</div>
-<div class="device-panel hidden" data-panel="thor-llama">
+<div class="device-panel" data-panel="thor-llama">
 
 ```bash
 sudo docker run -it --rm --pull always \
@@ -230,8 +197,6 @@ curl -s http://127.0.0.1:8080/v1/chat/completions \
 ```
 
 > **Note:** `--hf-repo ggml-org/NVIDIA-Nemotron-3-Nano-Omni` and `--hf-file nemotron-3-nano-omni-ga_v1.0-Q4_K_M.gguf` download the official GGUF checkpoint from Hugging Face. `-ngl 999` offloads all layers to GPU. `--alias my_model` sets the model name used in API requests. `chat_template_kwargs: {"enable_thinking": true}` activates chain-of-thought reasoning.
-
--->
 
 ## Running with TensorRT Edge-LLM
 

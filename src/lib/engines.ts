@@ -33,6 +33,15 @@ export const INFERENCE_ENGINES: Record<string, InferenceEngine> = {
 			return `vllm serve ${checkpoint}`;
 		}
 	},
+	sglang: {
+		id: 'sglang',
+		label: 'SGLang',
+		supports: ['Text', 'Multimodal'],
+		buildCommand: ({ options }) => {
+			const checkpoint = options?.checkpoint || 'model/checkpoint';
+			return `sglang serve ${checkpoint}`;
+		}
+	},
 	edgemllm: {
 		id: 'edgemllm',
 		label: 'EdgeLLM',

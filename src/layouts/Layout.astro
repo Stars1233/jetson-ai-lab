@@ -741,9 +741,38 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
             syncRunModalMatrixEngineRail(modal, meta);
             return;
           }
+          var activeEngine = modal.getAttribute('data-active-engine') || meta.defaultEngineId || '';
+          var engineSupportMap = meta.modulesSupportedByEngine || {};
+          var allowedForActiveEngine = null;
+          if (Object.prototype.hasOwnProperty.call(engineSupportMap, activeEngine)) {
+            allowedForActiveEngine = engineSupportMap[activeEngine];
+          } else {
+            for (var ek in engineSupportMap) {
+              if (Object.prototype.hasOwnProperty.call(engineSupportMap, ek) && normalizeInferenceEngineKey(ek) === normalizeInferenceEngineKey(activeEngine)) {
+                allowedForActiveEngine = engineSupportMap[ek];
+                break;
+              }
+            }
+          }
+          function commandForModuleAndEngine(moduleId, engineName) {
+            var commands = meta.moduleCommandMatrix && meta.moduleCommandMatrix[moduleId];
+            if (!commands) return '';
+            for (var ck in commands) {
+              if (Object.prototype.hasOwnProperty.call(commands, ck) && normalizeInferenceEngineKey(ck) === normalizeInferenceEngineKey(engineName)) {
+                return commands[ck] || '';
+              }
+            }
+            return '';
+          }
           modal.querySelectorAll('[data-run-module-tab]').forEach(function (btn) {
             var global = btn.getAttribute('data-run-module-global-disabled') === '1';
-            var dis = global;
+            var moduleId = btn.getAttribute('data-run-module-tab') || '';
+            var unsupportedByEngine = false;
+            if (allowedForActiveEngine != null && Array.isArray(allowedForActiveEngine)) {
+              unsupportedByEngine = allowedForActiveEngine.length === 0 || allowedForActiveEngine.indexOf(moduleId) === -1;
+            }
+            var hasCmd = !!String(commandForModuleAndEngine(moduleId, activeEngine)).trim();
+            var dis = global || unsupportedByEngine || !hasCmd;
             btn.disabled = dis;
             if (dis) {
               applyMatrixModuleTabDisabledVisual(btn);
