@@ -294,6 +294,30 @@
               "dgx_spark": null
             }
           }
+        },
+        "Ollama": {
+          "Q4_K_M": {
+            "concurrency1": {
+              "t5000": 27,
+              "t4000": null,
+              "agx_orin_64gb": 17,
+              "orin_nx_16gb": null,
+              "orin_nano_8gb": null,
+              "dgx_spark": null
+            },
+            "concurrency8": {
+              "t5000": 28,
+              "t4000": null,
+              "agx_orin_64gb": 17,
+              "orin_nx_16gb": null,
+              "orin_nano_8gb": null,
+              "dgx_spark": null
+            },
+            "oom": [
+              "orin_nx_16gb",
+              "orin_nano_8gb"
+            ]
+          }
         }
       }
     },

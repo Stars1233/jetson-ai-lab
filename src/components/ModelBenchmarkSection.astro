@@ -108,6 +108,7 @@ const ENGINE_COLORS_MAP: Record<string, string> = {
 	'vLLM':      '#30a3ff',
 	'SGLang':    '#d55816',
 	'llama.cpp': '#8899A6',
+	'Ollama':    '#2E2E2E',
 	'Edge-LLM':  '#006666',
 };
 ---
@@ -217,6 +218,7 @@ const ENGINE_COLORS_MAP: Record<string, string> = {
 		'vLLM':      '#30a3ff',
 		'SGLang':    '#d55816',
 		'llama.cpp': '#8899A6',
+		'Ollama':    '#2E2E2E',
 		'Edge-LLM':  '#006666',
 	};
 
@@ -462,6 +464,12 @@ const ENGINE_COLORS_MAP: Record<string, string> = {
 		activeProducts.forEach((prod, gi) => {
 			const cx = groupCx(gi);
 
+			const hasData = bars.some((bar, bi) => {
+				if (!bar.isMain && hiddenSeries.has(bi)) return false;
+				return bar[key][prod.id] != null || bar.dnr?.has(prod.id) || bar.oom?.has(prod.id);
+			});
+			const labelColor = hasData ? '#374151' : '#D1D5DB';
+
 			if (gi > 0) {
 				s += `<line x1="${ml + gi * groupW}" y1="${mt}" x2="${ml + gi * groupW}" y2="${mt + chartH}" stroke="#F9FAFB" stroke-dasharray="3 3"/>`;
 			}
@@ -473,7 +481,7 @@ const ENGINE_COLORS_MAP: Record<string, string> = {
 				const content = part.includes('Orin')
 					? part.replace('Orin', `<tspan font-weight="500">Orin</tspan>`)
 					: part;
-				s += `<text x="${cx}" y="${ly + pi * 17}" text-anchor="middle" fill="#6B7280" font-size="14" font-weight="${fw}">${content}</text>`;
+				s += `<text x="${cx}" y="${ly + pi * 17}" text-anchor="middle" fill="${labelColor}" font-size="14" font-weight="${fw}">${content}</text>`;
 			});
 		});
 

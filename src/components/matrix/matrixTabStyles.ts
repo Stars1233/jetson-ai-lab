@@ -94,7 +94,7 @@ export const MATRIX_ENGINE_BTN_SERVE: readonly string[] = [
 	'border-b-[5px] pb-2 -mb-px lg:mb-0 lg:border-b-0 lg:!border-l-[5px] lg:py-2.5 lg:rounded-r-md',
 	'border-b-transparent text-gray-500 cursor-pointer',
 	'hover:text-nvidia-black hover:border-b-gray-300 lg:hover:border-l-gray-300',
-	'disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none disabled:hover:bg-transparent disabled:text-nvidia-gray-400',
+	'disabled:bg-nvidia-gray-100 disabled:cursor-not-allowed disabled:pointer-events-none disabled:text-nvidia-gray-400 disabled:border-b-transparent disabled:lg:border-l-transparent',
 ];
 
 export const MATRIX_ENGINE_TITLE = 'font-semibold text-sm block';
