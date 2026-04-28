@@ -286,7 +286,7 @@
               "dgx_spark": null
             },
             "concurrency8": {
-              "t5000": 1340,
+              "t5000": 115.85,
               "t4000": null,
               "agx_orin_64gb": null,
               "orin_nx_16gb": null,
