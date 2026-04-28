@@ -283,27 +283,7 @@
               "dgx_spark": null
             },
             "concurrency8": {
-              "t5000": null,
-              "t4000": null,
-              "agx_orin_64gb": null,
-              "orin_nx_16gb": null,
-              "orin_nano_8gb": null,
-              "dgx_spark": null
-            }
-          }
-        },
-        "Edge-LLM": {
-          "Q4_K_M GGUF": {
-            "concurrency1": {
-              "t5000": null,
-              "t4000": null,
-              "agx_orin_64gb": null,
-              "orin_nx_16gb": null,
-              "orin_nano_8gb": null,
-              "dgx_spark": null
-            },
-            "concurrency8": {
-              "t5000": null,
+              "t5000": 1340,
               "t4000": null,
               "agx_orin_64gb": null,
               "orin_nx_16gb": null,

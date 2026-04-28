@@ -243,6 +243,7 @@ const ENGINE_COLORS_MAP: Record<string, string> = {
 				color: getBarColor(q),
 				legendColor: getBarColor(q),
 				isMain: true,
+				dnr: new Set(mainQuants[q]?.dnr ?? []),
 				c1: mainQuants[q]?.c1 ?? {},
 				c8: mainQuants[q]?.c8 ?? {},
 			})),
@@ -251,7 +252,7 @@ const ENGINE_COLORS_MAP: Record<string, string> = {
 				const firstQuantName = Object.keys(engineData)[0] ?? null;
 				const firstQuant = Object.values(engineData)[0] ?? { c1: {}, c8: {} };
 				const label = firstQuantName ? `${m.name} (${firstQuantName})` : m.name;
-				return { label, link: m.link ?? null, color: m.color, legendColor: m.color, isMain: false, seriesIndex: si, c1: firstQuant.c1, c8: firstQuant.c8 };
+				return { label, link: m.link ?? null, color: m.color, legendColor: m.color, isMain: false, seriesIndex: si, dnr: new Set(firstQuant.dnr ?? []), c1: firstQuant.c1, c8: firstQuant.c8 };
 			}),
 		];
 	}
@@ -290,13 +291,13 @@ const ENGINE_COLORS_MAP: Record<string, string> = {
 	function seriesHatchSvg(bi, si, color) {
 		if (si % 3 === 0) {
 			// 3px line, 2px gap → period 5
-			return `<pattern id="hatch-${bi}" patternUnits="userSpaceOnUse" width="5" height="5" patternTransform="rotate(45 0 0)"><rect width="5" height="5" fill="${color}" fill-opacity="0.2"/><line x1="0" y1="0" x2="0" y2="5" stroke="${color}" stroke-width="3"/></pattern>`;
+			return `<pattern id="hatch-${bi}" patternUnits="userSpaceOnUse" width="5" height="5" patternTransform="rotate(45 0 0)"><rect width="5" height="5" fill="${color}" fill-opacity="0.32"/><line x1="0" y1="0" x2="0" y2="5" stroke="${color}" stroke-opacity="0.55" stroke-width="3"/></pattern>`;
 		} else if (si % 3 === 1) {
 			// 1px line, 3px gap → period 4
-			return `<pattern id="hatch-${bi}" patternUnits="userSpaceOnUse" width="4" height="4" patternTransform="rotate(45 0 0)"><rect width="4" height="4" fill="${color}" fill-opacity="0.2"/><line x1="0" y1="0" x2="0" y2="4" stroke="${color}" stroke-width="1"/></pattern>`;
+			return `<pattern id="hatch-${bi}" patternUnits="userSpaceOnUse" width="4" height="4" patternTransform="rotate(45 0 0)"><rect width="4" height="4" fill="${color}" fill-opacity="0.32"/><line x1="0" y1="0" x2="0" y2="4" stroke="${color}" stroke-opacity="0.55" stroke-width="1"/></pattern>`;
 		} else {
 			// Cross hatch
-			return `<pattern id="hatch-${bi}" patternUnits="userSpaceOnUse" width="8" height="8"><rect width="8" height="8" fill="${color}" fill-opacity="0.2"/><line x1="0" y1="0" x2="8" y2="8" stroke="${color}" stroke-width="1.5"/><line x1="0" y1="8" x2="8" y2="0" stroke="${color}" stroke-width="1.5"/></pattern>`;
+			return `<pattern id="hatch-${bi}" patternUnits="userSpaceOnUse" width="8" height="8"><rect width="8" height="8" fill="${color}" fill-opacity="0.32"/><line x1="0" y1="0" x2="8" y2="8" stroke="${color}" stroke-opacity="0.55" stroke-width="1.5"/><line x1="0" y1="8" x2="8" y2="0" stroke="${color}" stroke-opacity="0.55" stroke-width="1.5"/></pattern>`;
 		}
 	}
 
@@ -309,11 +310,11 @@ const ENGINE_COLORS_MAP: Record<string, string> = {
 		const pid = `lp${bi}`;
 		let pat;
 		if (si % 3 === 0) {
-			pat = `<pattern id="${pid}" patternUnits="userSpaceOnUse" width="5" height="5" patternTransform="rotate(45 0 0)"><rect width="5" height="5" fill="${color}" fill-opacity="0.2"/><line x1="0" y1="0" x2="0" y2="5" stroke="${color}" stroke-width="3"/></pattern>`;
+			pat = `<pattern id="${pid}" patternUnits="userSpaceOnUse" width="5" height="5" patternTransform="rotate(45 0 0)"><rect width="5" height="5" fill="${color}" fill-opacity="0.32"/><line x1="0" y1="0" x2="0" y2="5" stroke="${color}" stroke-opacity="0.55" stroke-width="3"/></pattern>`;
 		} else if (si % 3 === 1) {
-			pat = `<pattern id="${pid}" patternUnits="userSpaceOnUse" width="4" height="4" patternTransform="rotate(45 0 0)"><rect width="4" height="4" fill="${color}" fill-opacity="0.2"/><line x1="0" y1="0" x2="0" y2="4" stroke="${color}" stroke-width="1"/></pattern>`;
+			pat = `<pattern id="${pid}" patternUnits="userSpaceOnUse" width="4" height="4" patternTransform="rotate(45 0 0)"><rect width="4" height="4" fill="${color}" fill-opacity="0.32"/><line x1="0" y1="0" x2="0" y2="4" stroke="${color}" stroke-opacity="0.55" stroke-width="1"/></pattern>`;
 		} else {
-			pat = `<pattern id="${pid}" patternUnits="userSpaceOnUse" width="8" height="8"><rect width="8" height="8" fill="${color}" fill-opacity="0.2"/><line x1="0" y1="0" x2="8" y2="8" stroke="${color}" stroke-width="1.5"/><line x1="0" y1="8" x2="8" y2="0" stroke="${color}" stroke-width="1.5"/></pattern>`;
+			pat = `<pattern id="${pid}" patternUnits="userSpaceOnUse" width="8" height="8"><rect width="8" height="8" fill="${color}" fill-opacity="0.32"/><line x1="0" y1="0" x2="8" y2="8" stroke="${color}" stroke-opacity="0.55" stroke-width="1.5"/><line x1="0" y1="8" x2="8" y2="0" stroke="${color}" stroke-opacity="0.55" stroke-width="1.5"/></pattern>`;
 		}
 		return `<svg width="${S}" height="${S}" xmlns="http://www.w3.org/2000/svg" ${toggleAttr}><defs>${pat}</defs><rect width="${S}" height="${S}" rx="${rx}" fill="url(#${pid})" stroke="rgba(0,0,0,0.1)" stroke-width="1"/></svg>`;
 	}
@@ -474,9 +475,18 @@ const ENGINE_COLORS_MAP: Record<string, string> = {
 			bars.forEach((bar, bi) => {
 				if (!bar.isMain && hiddenSeries.has(bi)) return;
 				const val = bar[key][prod.id];
-				if (val == null) return;
+				const isDnr = val == null && bar.dnr?.has(prod.id);
+				if (val == null && !isDnr) return;
 
 				const x = barLeft(gi, bi);
+
+				if (isDnr) {
+					const cx = x + barW / 2;
+					const cy = mt + chartH - 6;
+					s += `<text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="middle" fill="#D1D5DB" font-size="11" style="cursor:default" data-tip="Does not run">✕</text>`;
+					return;
+				}
+
 				const bh = (val / yMax) * chartH;
 				const by = mt + chartH - bh;
 				const rx = Math.min(3, barW / 5);
