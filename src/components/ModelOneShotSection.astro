@@ -92,6 +92,7 @@ const panelConfigJson = JSON.stringify({
 });
 ---
 
+{hasContent && (
 <section
 	id="model-one-shot-inference"
 	class="py-14 scroll-mt-20 border-t border-b border-nvidia-gray-200 bg-nvidia-gray-50"
@@ -276,6 +277,7 @@ const panelConfigJson = JSON.stringify({
 		}
 	</div>
 </section>
+)}
 
 {
 	hasContent && moduleSpecs.length > 0 && (

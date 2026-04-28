@@ -21,7 +21,7 @@ function pickRunSample(e: SupportedEngineEntry): string {
 }
 
 /** Normalized `engine` field from model front matter — matches inference panel selection. */
-export type ClientCallEngineKey = 'vllm' | 'ollama' | 'llamacpp';
+export type ClientCallEngineKey = 'vllm' | 'sglang' | 'ollama' | 'llamacpp';
 
 /** For Ollama only: OpenAI-compatible `/v1` vs native `/api/generate`. */
 export type ClientCallApiStyle = 'openai_compat' | 'ollama_native';
@@ -137,6 +137,36 @@ export function buildClientCallExamples(
 				intro: '',
 				showEngineHeading: false,
 				command: openaiSdkPythonExample(8000, model, 'compat', 'Hello!'),
+			});
+			continue;
+		}
+
+		if (key === 'sglang') {
+			seen.add('sglang');
+			const model =
+				opts.hfCheckpoint?.trim() ||
+				opts.modelId.replace(/-/g, '_') ||
+				'your-model-id';
+			out.push({
+				callEngineKey: 'sglang',
+				engineLabel: 'SGLang (OpenAI-compatible HTTP API)',
+				lang: 'shell',
+				intro: '',
+				showEngineHeading: false,
+				command: `curl -s http://\${JETSON_HOST}:30000/v1/chat/completions \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "model": "${model}",
+    "messages": [{"role": "user", "content": "Hello!"}]
+  }'`,
+			});
+			out.push({
+				callEngineKey: 'sglang',
+				engineLabel: 'Python (OpenAI SDK)',
+				lang: 'python',
+				intro: '',
+				showEngineHeading: false,
+				command: openaiSdkPythonExample(30000, model, 'compat', 'Hello!'),
 			});
 			continue;
 		}

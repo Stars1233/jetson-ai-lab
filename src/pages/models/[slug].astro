@@ -30,8 +30,14 @@ const benchmarkEntry = data.benchmark_key
   ? ((benchmarksData.models as any[]).find((m) => m.name === data.benchmark_key) ?? null)
   : null;
 
+const allModelEntries = await getCollection('models');
 const benchmarkSeries = (data.benchmark_series ?? [])
-  .map((k) => (benchmarksData.models as any[]).find((m) => m.name === k) ?? null)
+  .map((k) => {
+    const bm = (benchmarksData.models as any[]).find((m) => m.name === k) ?? null;
+    if (!bm) return null;
+    const page = allModelEntries.find((m) => m.data.benchmark_key === k);
+    return { ...bm, link: page ? `/models/${page.slug}#model-benchmark` : null };
+  })
   .filter((m): m is NonNullable<typeof m> => m !== null);
 
 // Per-token precision pill — colors match benchmark bar palette

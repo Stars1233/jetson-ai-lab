@@ -87,9 +87,31 @@ const showCallApiStyleTabs =
 	data-default-inference-engine={engines[0]?.engine ?? ''}
 >
 	<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-		<h3 id="call-model-heading" class="text-2xl font-bold text-nvidia-black mb-2">
-			Call the model over Web API
-		</h3>
+		<div class="flex items-center justify-between mb-2">
+			<h3 id="call-model-heading" class="text-2xl font-bold text-nvidia-black">
+				Call the model over Web API
+			</h3>
+			<button
+				type="button"
+				id="call-model-collapse-toggle"
+				class="text-[11px] font-medium text-nvidia-green hover:text-nvidia-green/80 flex items-center gap-0.5 shrink-0"
+				aria-expanded="true"
+				aria-controls="call-model-body"
+			>
+				<span data-call-collapse-text>Hide</span>
+				<svg
+					data-call-collapse-icon
+					class="w-3 h-3 transition-transform duration-200 shrink-0 rotate-180"
+					fill="none"
+					stroke="currentColor"
+					viewBox="0 0 24 24"
+					aria-hidden="true"
+				>
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+				</svg>
+			</button>
+		</div>
+		<div id="call-model-body">
 		<p class="text-sm text-nvidia-gray-600 mb-8">
 			Copy a client command below and paste it into your terminal to make a Web API request to the model you just
 			served.
@@ -270,15 +292,11 @@ const showCallApiStyleTabs =
 									</button>
 									<pre
 										class="text-sm font-mono text-slate-200 whitespace-pre-wrap break-words [overflow-wrap:anywhere] p-4 m-0"
-									>
-										<code
+									><code
 											class="model-call-command block w-full max-w-full whitespace-pre-wrap break-words [overflow-wrap:anywhere]"
 											data-call-index={i}
 											data-call-lang={ex.lang ?? 'shell'}
-										>
-											{ex.command}
-										</code>
-									</pre>
+										>{ex.command}</code></pre>
 								</div>
 							</div>
 								);
@@ -293,6 +311,7 @@ const showCallApiStyleTabs =
 				</p>
 			)
 		}
+		</div>{/* end call-model-body */}
 	</div>
 </section>
 
@@ -506,6 +525,19 @@ const showCallApiStyleTabs =
 					});
 				});
 			}
+
+			const collapseToggle = document.getElementById('call-model-collapse-toggle');
+			const collapseBody = document.getElementById('call-model-body');
+			const collapseText = collapseToggle?.querySelector('[data-call-collapse-text]');
+			const collapseIcon = collapseToggle?.querySelector('[data-call-collapse-icon]');
+			collapseToggle?.addEventListener('click', () => {
+				if (!collapseBody || !collapseToggle) return;
+				collapseBody.classList.toggle('hidden');
+				const open = !collapseBody.classList.contains('hidden');
+				collapseToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+				if (collapseText) collapseText.textContent = open ? 'Hide' : 'Show';
+				collapseIcon?.classList.toggle('rotate-180', open);
+			});
 
 			initModelCallSection();
 			document.addEventListener('astro:page-load', initModelCallSection);

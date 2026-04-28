@@ -4,7 +4,7 @@ model_id: "gemma4-e2b"
 short_description: "Google's compact frontier Gemma 4 model for efficient multimodal and agentic workloads"
 family: "Google Gemma4"
 icon: "💎"
-is_new: true
+is_new: false
 order: 1
 type: "Multimodal"
 vision_capable: true

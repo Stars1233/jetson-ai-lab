@@ -4,7 +4,7 @@ model_id: "gemma4-26b-a4b"
 short_description: "Google's 26B MoE frontier Gemma 4 model for fast high-end reasoning and multimodal workflows"
 family: "Google Gemma4"
 icon: "💎"
-is_new: true
+is_new: false
 order: 3
 type: "Multimodal"
 vision_capable: true

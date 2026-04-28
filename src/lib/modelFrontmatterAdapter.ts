@@ -1,7 +1,4 @@
 import {
-	engineSupportsModule,
-	serveCommandForMatrixCell,
-	visibleModulesForEngines,
 	type SupportedEngineEntry,
 } from './inferenceCommands';
 
@@ -52,34 +49,30 @@ export function getSupportedInferenceEngines(data: ModelEnginesSource): Supporte
 	return data.supported_inference_engines ?? [];
 }
 
-/** Matrix cells with a non-empty serve command (same idea as catalog union, per engine). */
-function runnableMatrixCellCountForEngine(
-	allEngines: SupportedEngineEntry[],
-	entry: SupportedEngineEntry
-): number {
-	const mods = visibleModulesForEngines(allEngines);
-	let n = 0;
-	for (const mod of mods) {
-		if (!engineSupportsModule(entry, mod.id)) continue;
-		if (!serveCommandForMatrixCell(entry, mod).trim()) continue;
-		n++;
-	}
-	return n;
+
+const ENGINE_ORDER: Record<string, number> = {
+	vllm: 0,
+	sglang: 1,
+	llamacpp: 2,
+	ollama: 3,
+	edgellm: 4,
+};
+
+function engineSortKey(engine: string): number {
+	const key = engine.toLowerCase().replace(/[.\-_ ]/g, '');
+	return ENGINE_ORDER[key] ?? 99;
 }
 
 /**
  * Order engines for the serve matrix / Run modal.
- * Prefer an engine that supports **more** Jetson module tabs (aligns default UI with catalog “any engine” checks),
- * then vLLM among ties, then name.
+ * Fixed order: vLLM > SGLang > llama.cpp > Ollama > Edge-LLM > everything else (alphabetical).
  */
 export function sortEnginesForUi(engines: SupportedEngineEntry[]): SupportedEngineEntry[] {
 	if (engines.length <= 1) return [...engines];
 	return [...engines].sort((a, b) => {
-		const ca = runnableMatrixCellCountForEngine(engines, a);
-		const cb = runnableMatrixCellCountForEngine(engines, b);
-		if (cb !== ca) return cb - ca;
-		if (a.engine === 'vLLM') return -1;
-		if (b.engine === 'vLLM') return 1;
+		const ka = engineSortKey(a.engine);
+		const kb = engineSortKey(b.engine);
+		if (ka !== kb) return ka - kb;
 		return a.engine.localeCompare(b.engine);
 	});
 }

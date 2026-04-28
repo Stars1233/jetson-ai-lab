@@ -1,10 +1,10 @@
 ---
 const PRODUCTS = [
-	{ id: 't5000',         label: 'T5000' },
-	{ id: 't4000',         label: 'T4000' },
-	{ id: 'agx_orin_64gb', label: 'AGX Orin\n64GB' },
-	{ id: 'orin_nx_16gb',  label: 'Orin NX\n16GB' },
-	{ id: 'orin_nano_8gb', label: 'Orin Nano\n8GB' },
+	{ id: 't5000',         label: 'Jetson Thor\nT5000' },
+	{ id: 't4000',         label: 'Jetson Thor\nT4000' },
+	{ id: 'agx_orin_64gb', label: 'Jetson\nAGX Orin\n64GB' },
+	{ id: 'orin_nx_16gb',  label: 'Jetson\nOrin NX\n16GB' },
+	{ id: 'orin_nano_8gb', label: 'Jetson\nOrin Nano\n8GB' },
 ] as const;
 
 type ProductId = (typeof PRODUCTS)[number]['id'];
@@ -16,6 +16,7 @@ interface QuantData {
 
 interface BenchmarkEntry {
 	name: string;
+	link?: string | null;
 	isl: number | null;
 	osl: number | null;
 	/** engines[engineName][quantName] = QuantData */
@@ -72,6 +73,7 @@ const clientData = hasAnyData
 			engineNames,
 			models: allModels.map((m, i) => ({
 				name: m.name,
+				link: (m as any).link ?? null,
 				color: modelColors[i],
 				isMain: i === 0,
 				engines: Object.fromEntries(
@@ -115,11 +117,11 @@ const ENGINE_COLORS_MAP: Record<string, string> = {
 		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
 			{/* Header */}
-			<div class="flex flex-wrap items-start justify-between gap-4 mb-6">
-				<div>
-					<h2 id="model-benchmark-heading" class="text-3xl font-bold text-nvidia-black mb-1">
-						Benchmark
-					</h2>
+			<div class="mb-6">
+				<h2 id="model-benchmark-heading" class="text-3xl font-bold text-nvidia-black mb-2">
+					Benchmark
+				</h2>
+				<div class="flex flex-wrap items-center justify-between gap-4">
 					<p class="text-sm text-nvidia-gray-500">
 						<strong class="text-nvidia-black">{entry.name}</strong>
 						&nbsp;&middot;&nbsp;<span id="bench-engine-label">{firstEngine}</span>
@@ -128,47 +130,47 @@ const ENGINE_COLORS_MAP: Record<string, string> = {
 						</span>
 						{isl != null && <>&nbsp;&middot;&nbsp;ISL&nbsp;{isl}&nbsp;/&nbsp;OSL&nbsp;{osl}</>}
 					</p>
-				</div>
-				<div class="flex flex-wrap justify-end items-center gap-x-4 gap-y-2 self-start mt-1">
-					{/* Engine toggle */}
-					{engineNames.length > 0 && (
-						<div class="flex items-center gap-2">
-							<span class="text-xs text-nvidia-gray-400 font-medium">Engine</span>
-							<div
-								id="bench-engine-toggle"
-								class="inline-flex rounded-lg bg-nvidia-gray-100 p-0.5"
-								aria-label="Inference engine selector"
-							>
-								{engineNames.map((e) => (
-									<button
-										class={`px-4 py-1.5 text-xs font-semibold rounded-md transition-all duration-150 ${e === firstEngine ? 'bg-nvidia-black text-white shadow-sm' : 'text-nvidia-gray-600 hover:bg-nvidia-gray-200'}`}
-										data-engine={e}
-									>
-										<span style={`border-bottom: 3px solid ${ENGINE_COLORS_MAP[e] ?? '#888888'}; padding-bottom: 1px;`}>{e}</span>
-									</button>
-								))}
+					<div class="flex flex-wrap items-center gap-x-4 gap-y-2">
+						{/* Engine toggle */}
+						{engineNames.length > 0 && (
+							<div class="flex items-center gap-2">
+								<span class="text-xs text-nvidia-gray-400 font-medium">Engine</span>
+								<div
+									id="bench-engine-toggle"
+									class="inline-flex rounded-lg bg-nvidia-gray-100 p-0.5"
+									aria-label="Inference engine selector"
+								>
+									{engineNames.map((e) => (
+										<button
+											class={`px-4 py-1.5 text-xs font-semibold rounded-md transition-all duration-150 ${e === firstEngine ? 'bg-nvidia-black text-white shadow-sm' : 'text-nvidia-gray-600 hover:bg-nvidia-gray-200'}`}
+											data-engine={e}
+										>
+											<span style={`border-bottom: 3px solid ${ENGINE_COLORS_MAP[e] ?? '#888888'}; padding-bottom: 1px;`}>{e}</span>
+										</button>
+									))}
+								</div>
 							</div>
-						</div>
-					)}
-					{/* Concurrency toggle */}
-					<div class="flex items-center gap-2">
-						<span class="text-xs text-nvidia-gray-400 font-medium">Concurrency</span>
-						<div
-							class="inline-flex rounded-lg bg-nvidia-gray-100 p-0.5"
-							aria-label="Concurrency selector"
-						>
-							<button
-								id="bench-btn-c1"
-								class="px-4 py-1.5 text-xs font-semibold rounded-md bg-nvidia-green text-nvidia-black shadow-sm transition-all duration-150"
+						)}
+						{/* Concurrency toggle */}
+						<div class="flex items-center gap-2">
+							<span class="text-xs text-nvidia-gray-400 font-medium">Concurrency</span>
+							<div
+								class="inline-flex rounded-lg bg-nvidia-gray-100 p-0.5"
+								aria-label="Concurrency selector"
 							>
-								C=1
-							</button>
-							<button
-								id="bench-btn-c8"
-								class="px-4 py-1.5 text-xs font-semibold rounded-md text-nvidia-gray-600 hover:bg-nvidia-gray-200 transition-all duration-150"
-							>
-								C=8
-							</button>
+								<button
+									id="bench-btn-c1"
+									class="px-4 py-1.5 text-xs font-semibold rounded-md bg-nvidia-green text-nvidia-black shadow-sm transition-all duration-150"
+								>
+									C=1
+								</button>
+								<button
+									id="bench-btn-c8"
+									class="px-4 py-1.5 text-xs font-semibold rounded-md text-nvidia-gray-600 hover:bg-nvidia-gray-200 transition-all duration-150"
+								>
+									C=8
+								</button>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -204,6 +206,8 @@ const ENGINE_COLORS_MAP: Record<string, string> = {
 	let currentEngine = benchData.engineNames[0];
 	let yAxisFixed = false;
 	let showShadow = false;
+	let hasAnimated = false;
+	const hiddenSeries = new Set(); // tracks bi values of hidden comparison bars
 
 	const ENGINE_COLORS = {
 		'vLLM':      '#30a3ff',
@@ -242,9 +246,12 @@ const ENGINE_COLORS_MAP: Record<string, string> = {
 				c1: mainQuants[q]?.c1 ?? {},
 				c8: mainQuants[q]?.c8 ?? {},
 			})),
-			...benchData.models.slice(1).map((m) => {
-				const firstQuant = Object.values(m.engines[currentEngine] ?? {})[0] ?? { c1: {}, c8: {} };
-				return { label: m.name, color: m.color, legendColor: m.color, isMain: false, c1: firstQuant.c1, c8: firstQuant.c8 };
+			...benchData.models.slice(1).map((m, si) => {
+				const engineData = m.engines[currentEngine] ?? {};
+				const firstQuantName = Object.keys(engineData)[0] ?? null;
+				const firstQuant = Object.values(engineData)[0] ?? { c1: {}, c8: {} };
+				const label = firstQuantName ? `${m.name} (${firstQuantName})` : m.name;
+				return { label, link: m.link ?? null, color: m.color, legendColor: m.color, isMain: false, seriesIndex: si, c1: firstQuant.c1, c8: firstQuant.c8 };
 			}),
 		];
 	}
@@ -279,14 +286,63 @@ const ENGINE_COLORS_MAP: Record<string, string> = {
 		1,
 	));
 
+	// si = 0-based series index (independent of bi). Cycles through three distinct fill patterns.
+	function seriesHatchSvg(bi, si, color) {
+		if (si % 3 === 0) {
+			// 3px line, 2px gap → period 5
+			return `<pattern id="hatch-${bi}" patternUnits="userSpaceOnUse" width="5" height="5" patternTransform="rotate(45 0 0)"><rect width="5" height="5" fill="${color}" fill-opacity="0.2"/><line x1="0" y1="0" x2="0" y2="5" stroke="${color}" stroke-width="3"/></pattern>`;
+		} else if (si % 3 === 1) {
+			// 1px line, 3px gap → period 4
+			return `<pattern id="hatch-${bi}" patternUnits="userSpaceOnUse" width="4" height="4" patternTransform="rotate(45 0 0)"><rect width="4" height="4" fill="${color}" fill-opacity="0.2"/><line x1="0" y1="0" x2="0" y2="4" stroke="${color}" stroke-width="1"/></pattern>`;
+		} else {
+			// Cross hatch
+			return `<pattern id="hatch-${bi}" patternUnits="userSpaceOnUse" width="8" height="8"><rect width="8" height="8" fill="${color}" fill-opacity="0.2"/><line x1="0" y1="0" x2="8" y2="8" stroke="${color}" stroke-width="1.5"/><line x1="0" y1="8" x2="8" y2="0" stroke="${color}" stroke-width="1.5"/></pattern>`;
+		}
+	}
+
+	function legendSwatch(bi, si, color, isHidden) {
+		const S = 20, rx = 3;
+		const toggleAttr = `data-toggle-bi="${bi}" style="display:block;flex-shrink:0;cursor:pointer"`;
+		if (isHidden) {
+			return `<svg width="${S}" height="${S}" xmlns="http://www.w3.org/2000/svg" ${toggleAttr}><rect width="${S}" height="${S}" rx="${rx}" fill="${color}33" stroke="${color}" stroke-width="1.5" stroke-dasharray="3 2"/></svg>`;
+		}
+		const pid = `lp${bi}`;
+		let pat;
+		if (si % 3 === 0) {
+			pat = `<pattern id="${pid}" patternUnits="userSpaceOnUse" width="5" height="5" patternTransform="rotate(45 0 0)"><rect width="5" height="5" fill="${color}" fill-opacity="0.2"/><line x1="0" y1="0" x2="0" y2="5" stroke="${color}" stroke-width="3"/></pattern>`;
+		} else if (si % 3 === 1) {
+			pat = `<pattern id="${pid}" patternUnits="userSpaceOnUse" width="4" height="4" patternTransform="rotate(45 0 0)"><rect width="4" height="4" fill="${color}" fill-opacity="0.2"/><line x1="0" y1="0" x2="0" y2="4" stroke="${color}" stroke-width="1"/></pattern>`;
+		} else {
+			pat = `<pattern id="${pid}" patternUnits="userSpaceOnUse" width="8" height="8"><rect width="8" height="8" fill="${color}" fill-opacity="0.2"/><line x1="0" y1="0" x2="8" y2="8" stroke="${color}" stroke-width="1.5"/><line x1="0" y1="8" x2="8" y2="0" stroke="${color}" stroke-width="1.5"/></pattern>`;
+		}
+		return `<svg width="${S}" height="${S}" xmlns="http://www.w3.org/2000/svg" ${toggleAttr}><defs>${pat}</defs><rect width="${S}" height="${S}" rx="${rx}" fill="url(#${pid})" stroke="rgba(0,0,0,0.1)" stroke-width="1"/></svg>`;
+	}
+
 	function renderLegend() {
 		const legendEl = document.getElementById('bench-legend');
 		if (!legendEl) return;
 		const bars = getBars();
 		legendEl.classList.remove('hidden');
-		legendEl.innerHTML = bars.map((b) =>
-			`<div class="flex items-center gap-2"><span class="inline-block w-3.5 h-3.5 rounded-sm shrink-0" style="background:${b.legendColor ?? b.color};border:1px solid rgba(0,0,0,0.1)"></span><span class="text-xs" style="color:#374151">${b.label}</span></div>`
-		).join('');
+		legendEl.innerHTML = bars.map((b, bi) => {
+			const color = b.legendColor ?? b.color;
+			const isHidden = !b.isMain && hiddenSeries.has(bi);
+			const swatchHtml = b.isMain
+				? `<svg width="20" height="20" xmlns="http://www.w3.org/2000/svg" style="display:block;flex-shrink:0"><rect width="20" height="20" rx="3" fill="${color}" stroke="rgba(0,0,0,0.1)" stroke-width="1"/></svg>`
+				: legendSwatch(bi, b.seriesIndex, color, isHidden);
+			const nameHtml = b.link
+				? `<a href="${b.link}" style="color:#374151;font-size:0.75rem;text-decoration:none" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">${b.label} ↗</a>`
+				: `<span style="color:#374151;font-size:0.75rem">${b.label}</span>`;
+			return `<div class="flex items-center gap-2">${swatchHtml}${nameHtml}</div>`;
+		}).join('');
+
+		legendEl.querySelectorAll('[data-toggle-bi]').forEach((el) => {
+			el.addEventListener('click', () => {
+				const bi = parseInt(el.dataset.toggleBi);
+				if (hiddenSeries.has(bi)) hiddenSeries.delete(bi);
+				else hiddenSeries.add(bi);
+				render();
+			});
+		});
 	}
 
 	function render() {
@@ -305,13 +361,13 @@ const ENGINE_COLORS_MAP: Record<string, string> = {
 		}
 		noDataEl.classList.add('hidden');
 
-		const allVals = bars.flatMap((b) =>
-			activeProducts.map((p) => b[key][p.id] ?? 0),
+		const allVals = bars.flatMap((b, bi) =>
+			(!b.isMain && hiddenSeries.has(bi)) ? [] : activeProducts.map((p) => b[key][p.id] ?? 0),
 		);
 		const yMax = yAxisFixed ? globalYMax : niceMax(Math.max(...allVals, 1));
 
 		// Layout — mt=28 reserves space above the chart area for the Y-lock button
-		const ml = 62, mr = 24, mt = 28, mb = 68;
+		const ml = 62, mr = 24, mt = 28, mb = 84;
 		const N = activeProducts.length;
 		const M = bars.length;
 
@@ -350,6 +406,7 @@ const ENGINE_COLORS_MAP: Record<string, string> = {
 						<feMergeNode in="SourceGraphic"/>
 					</feMerge>
 				</filter>
+				${bars.map((b, bi) => b.isMain ? '' : seriesHatchSvg(bi, b.seriesIndex, b.color)).join('')}
 			</defs>
 			<style>
 				.bbar{transform-box:fill-box;transform-origin:50% 100%;animation:bbar-in 0.4s cubic-bezier(.25,.46,.45,.94) both}
@@ -402,16 +459,20 @@ const ENGINE_COLORS_MAP: Record<string, string> = {
 
 			const parts = prod.label.split('\n');
 			const ly = mt + chartH + 18;
-			s += `<text x="${cx}" y="${ly}" text-anchor="middle" fill="#6B7280" font-size="12" font-weight="500">${parts[0]}</text>`;
-			if (parts[1]) {
-				s += `<text x="${cx}" y="${ly + 15}" text-anchor="middle" fill="#6B7280" font-size="12">${parts[1]}</text>`;
-			}
+			parts.forEach((part, pi) => {
+				const fw = pi === 0 ? '500' : '400';
+				const content = part.includes('Orin')
+					? part.replace('Orin', `<tspan font-weight="500">Orin</tspan>`)
+					: part;
+				s += `<text x="${cx}" y="${ly + pi * 17}" text-anchor="middle" fill="#6B7280" font-size="14" font-weight="${fw}">${content}</text>`;
+			});
 		});
 
 		// Groups — pass 2: bars clipped to chart area so shadow never bleeds below X-axis
 		s += `<g clip-path="url(#chart-clip)">`;
 		activeProducts.forEach((prod, gi) => {
 			bars.forEach((bar, bi) => {
+				if (!bar.isMain && hiddenSeries.has(bi)) return;
 				const val = bar[key][prod.id];
 				if (val == null) return;
 
@@ -420,9 +481,12 @@ const ENGINE_COLORS_MAP: Record<string, string> = {
 				const by = mt + chartH - bh;
 				const rx = Math.min(3, barW / 5);
 
-				s += `<rect x="${x}" y="${by}" width="${barW}" height="${bh}" fill="${bar.color}" rx="${rx}"
-					class="bbar"${showShadow ? ' filter="url(#bar-shadow)"' : ''} style="cursor:pointer;animation-delay:${bi * 40}ms"
-					data-tip="${bar.label}: ${val} ${benchData.unit}"/>`;
+				const barFill = bar.isMain ? bar.color : `url(#hatch-${bi})`;
+				const barLink = !bar.isMain && bar.link ? ` data-link="${bar.link}"` : '';
+				const animClass = hasAnimated ? '' : ' class="bbar"';
+				const animDelay = hasAnimated ? '' : `;animation-delay:${bi * 40}ms`;
+				s += `<rect x="${x}" y="${by}" width="${barW}" height="${bh}" fill="${barFill}" rx="${rx}"${animClass}${showShadow ? ' filter="url(#bar-shadow)"' : ''} style="cursor:pointer${animDelay}"
+					data-tip="${bar.label}: ${val} ${benchData.unit}"${barLink}/>`;
 				if (bh > 20) {
 					s += `<text x="${x + barW / 2}" y="${by - 4}" text-anchor="middle"
 						fill="${bar.isMain ? '#374151' : '#9CA3AF'}" font-size="9.5" font-weight="${bar.isMain ? '600' : '400'}">${val}</text>`;
@@ -433,6 +497,7 @@ const ENGINE_COLORS_MAP: Record<string, string> = {
 
 		s += '</svg>';
 		chartEl.innerHTML = s;
+		hasAnimated = true;
 		updateBtns();
 		renderLegend();
 		attachHover();
@@ -440,6 +505,9 @@ const ENGINE_COLORS_MAP: Record<string, string> = {
 
 	function attachHover() {
 		chartEl.querySelectorAll('[data-tip]').forEach((el) => {
+			if (el.dataset.link) {
+				el.addEventListener('click', () => { window.location.href = el.dataset.link; });
+			}
 			el.addEventListener('mouseenter', (e) => {
 				if (!el.closest('.bench-lock-btn')) el.setAttribute('opacity', '0.82');
 				tooltip.textContent = el.dataset.tip;
