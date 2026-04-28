@@ -68,6 +68,14 @@ supported_inference_engines:
         -v $HOME/.cache/llama.cpp:/data/models/llama.cpp \
         ghcr.io/nvidia-ai-iot/llama_cpp:latest-jetson-thor \
         bash -lc 'MODEL=$(huggingface-downloader ggml-org/Nemotron-3-Nano-Omni-GGUF/nemotron-3-nano-omni-ga_v1.0-Q4_K_M.gguf) && MMPROJ=$(huggingface-downloader ggml-org/Nemotron-3-Nano-Omni-GGUF/mmproj-nemotron-3-nano-omni-ga_v1.0.gguf) && llama-server -m "$MODEL" -mm "$MMPROJ" --ctx-size 8192 --alias my_model --n-gpu-layers 999 --host 0.0.0.0 --port 8080'
+  - engine: "Ollama"
+    type: "Local"
+    modules_supported:
+      - thor_t5000
+      - thor_t4000
+      - orin_agx_64
+    serve_command_thor: ollama run nemotron3:33b-q4_K_M
+    serve_command_orin: ollama run nemotron3:33b-q4_K_M
 benchmark_key: "Nemotron 3 Nano Omni"
 benchmark_series:
   - "Nemotron 3 30B-A3B"
@@ -192,6 +200,14 @@ curl -s http://127.0.0.1:8080/v1/chat/completions \
 ```
 
 > **Note:** `huggingface-downloader` fetches the GGUF model and multimodal projector from `ggml-org/Nemotron-3-Nano-Omni-GGUF`. `-mm "$MMPROJ"` loads the multimodal projector for vision support. `--n-gpu-layers 999` offloads all layers to GPU. `--alias my_model` sets the model name used in API requests. `chat_template_kwargs: {"enable_thinking": true}` activates chain-of-thought reasoning.
+
+## Running with Ollama
+
+Ollama runs the Q4_K_M GGUF directly on the GPU and works on both Jetson Thor and Jetson AGX Orin 64GB.
+
+```bash
+ollama run nemotron3:33b-q4_K_M
+```
 
 ## Running with TensorRT Edge-LLM
 

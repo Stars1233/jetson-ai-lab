@@ -99,7 +99,10 @@ const servePanelModuleItems: MatrixModuleTabItem[] = visibleModules.map((m) => (
 	iconBadgeMemory: m.iconBadgeMemory,
 	globalDisabled: m.disabled === true,
 }));
-const servePanelTabDisabled = visibleModules.map((m) => moduleTabDisabledForEngine(m, defaultEngineEntry));
+const servePanelTabDisabled = visibleModules.map((m) => {
+	if (m.disabled === true) return true;
+	return !sortedEngines.some((e) => engineSupportsModule(e, m.id));
+});
 const servePanelEngineRows = sortedEngines.map((e) => ({
 	key: e.engine,
 	title: e.engine,
