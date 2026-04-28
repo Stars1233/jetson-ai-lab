@@ -24,19 +24,6 @@ supported_inference_engines:
     modules_supported:
       - thor_t5000
       - thor_t4000
-      - orin_agx_64
-    serve_command_orin: |-
-      sudo docker run -it --rm --pull always \
-        --runtime=nvidia --network host \
-        -v $HOME/.cache/huggingface:/root/.cache/huggingface \
-        ghcr.io/nvidia-ai-iot/vllm:latest-jetson-orin \
-        bash -c "pip install -q 'vllm[audio]' && vllm serve nvidia/Nemotron-3-Nano-Omni-30B-A3B-Reasoning-FP8 \
-          --trust-remote-code \
-          --gpu-memory-utilization 0.65 \
-          --max-model-len 32768 \
-          --reasoning-parser nemotron_v3 \
-          --enable-auto-tool-choice \
-          --tool-call-parser qwen3_coder"
     serve_command_thor: |-
       sudo docker run -it --rm --pull always \
         --runtime=nvidia --network host \
@@ -123,36 +110,10 @@ Nemotron Nano 3 Omni is NVIDIA's multimodal reasoning model combining language, 
 
 ## Supported Platforms
 
-- Jetson Thor
-- Jetson Orin AGX 64GB
-
-<!-- Temporarily hidden: vLLM, SGLang, and llama.cpp sections.
+- Jetson Thor (NVFP4, FP8, BF16 — vLLM, SGLang, llama.cpp)
+- Jetson Orin AGX 64GB (llama.cpp)
 
 ## Running with vLLM
-
-<div class="device-tabs">
-<div class="device-tab-bar">
-<button class="device-tab active" data-target="orin">Jetson Orin</button>
-<button class="device-tab" data-target="thor">Jetson Thor</button>
-</div>
-<div class="device-panel" data-panel="orin">
-
-```bash
-sudo docker run -it --rm --pull always \
-  --runtime=nvidia --network host \
-  -v $HOME/.cache/huggingface:/root/.cache/huggingface \
-  ghcr.io/nvidia-ai-iot/vllm:latest-jetson-orin \
-  bash -c "pip install -q 'vllm[audio]' && vllm serve nvidia/Nemotron-3-Nano-Omni-30B-A3B-Reasoning-FP8 \
-    --trust-remote-code \
-    --gpu-memory-utilization 0.65 \
-    --max-model-len 32768 \
-    --reasoning-parser nemotron_v3 \
-    --enable-auto-tool-choice \
-    --tool-call-parser qwen3_coder"
-```
-
-</div>
-<div class="device-panel hidden" data-panel="thor">
 
 ```bash
 sudo docker run -it --rm --pull always \
@@ -167,9 +128,6 @@ sudo docker run -it --rm --pull always \
     --enable-auto-tool-choice \
     --tool-call-parser qwen3_coder"
 ```
-
-</div>
-</div>
 
 ## Running with SGLang
 
