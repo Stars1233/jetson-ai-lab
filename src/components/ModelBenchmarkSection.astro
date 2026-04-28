@@ -12,6 +12,7 @@ type ProductId = (typeof PRODUCTS)[number]['id'];
 interface QuantData {
 	concurrency1: Partial<Record<ProductId, number | null>>;
 	concurrency8: Partial<Record<ProductId, number | null>>;
+	dnr?: string[];
 }
 
 interface BenchmarkEntry {
@@ -85,6 +86,7 @@ const clientData = hasAnyData
 								{
 									c1: Object.fromEntries(PRODUCTS.map((p) => [p.id, qd.concurrency1[p.id] ?? null])),
 									c8: Object.fromEntries(PRODUCTS.map((p) => [p.id, qd.concurrency8[p.id] ?? null])),
+									dnr: qd.dnr ?? [],
 								},
 							]),
 						),
