@@ -214,7 +214,7 @@
               "orin_nano_8gb": null,
               "dgx_spark": 138.6
             },
-            "dnr": [
+            "oom": [
               "t4000"
             ]
           },
