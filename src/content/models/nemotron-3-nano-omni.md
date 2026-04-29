@@ -64,10 +64,14 @@ supported_inference_engines:
     serve_command_thor: |-
       sudo docker run -it --rm --pull always \
         --runtime=nvidia --network host \
-        -v $HOME/.cache/huggingface:/data/models/huggingface \
-        -v $HOME/.cache/llama.cpp:/data/models/llama.cpp \
         ghcr.io/nvidia-ai-iot/llama_cpp:latest-jetson-thor \
-        bash -lc 'MODEL=$(huggingface-downloader ggml-org/Nemotron-3-Nano-Omni-GGUF/nemotron-3-nano-omni-ga_v1.0-Q4_K_M.gguf) && MMPROJ=$(huggingface-downloader ggml-org/Nemotron-3-Nano-Omni-GGUF/mmproj-nemotron-3-nano-omni-ga_v1.0.gguf) && llama-server -m "$MODEL" -mm "$MMPROJ" --ctx-size 8192 --alias my_model --n-gpu-layers 999 --host 0.0.0.0 --port 8080'
+        llama-server \
+          --hf-repo ggml-org/Nemotron-3-Nano-Omni-GGUF \
+          --hf-file nemotron-3-nano-omni-ga_v1.0-Q4_K_M.gguf \
+          --ctx-size 8192 \
+          --port 8080 \
+          --alias my_model \
+          --n-gpu-layers 999
   - engine: "Ollama"
     type: "Local"
     modules_supported:
@@ -168,17 +172,14 @@ curl -s http://${JETSON_HOST}:30000/v1/chat/completions \
 ```bash
 sudo docker run -it --rm --pull always \
   --runtime=nvidia --network host \
-  -v $HOME/.cache/huggingface:/data/models/huggingface \
-  -v $HOME/.cache/llama.cpp:/data/models/llama.cpp \
   ghcr.io/nvidia-ai-iot/llama_cpp:latest-jetson-thor \
-  bash -lc 'MODEL=$(huggingface-downloader ggml-org/Nemotron-3-Nano-Omni-GGUF/nemotron-3-nano-omni-ga_v1.0-Q4_K_M.gguf) && \
-    MMPROJ=$(huggingface-downloader ggml-org/Nemotron-3-Nano-Omni-GGUF/mmproj-nemotron-3-nano-omni-ga_v1.0.gguf) && \
-    llama-server -m "$MODEL" -mm "$MMPROJ" \
-      --ctx-size 8192 \
-      --alias my_model \
-      --n-gpu-layers 999 \
-      --host 0.0.0.0 \
-      --port 8080'
+  llama-server \
+    --hf-repo ggml-org/Nemotron-3-Nano-Omni-GGUF \
+    --hf-file nemotron-3-nano-omni-ga_v1.0-Q4_K_M.gguf \
+    --ctx-size 8192 \
+    --port 8080 \
+    --alias my_model \
+    --n-gpu-layers 999
 ```
 
 </div>
@@ -199,7 +200,7 @@ curl -s http://127.0.0.1:8080/v1/chat/completions \
   }'
 ```
 
-> **Note:** `huggingface-downloader` fetches the GGUF model and multimodal projector from `ggml-org/Nemotron-3-Nano-Omni-GGUF`. `-mm "$MMPROJ"` loads the multimodal projector for vision support. `--n-gpu-layers 999` offloads all layers to GPU. `--alias my_model` sets the model name used in API requests. `chat_template_kwargs: {"enable_thinking": true}` activates chain-of-thought reasoning.
+> **Note:** `--hf-repo ggml-org/Nemotron-3-Nano-Omni-GGUF` and `--hf-file nemotron-3-nano-omni-ga_v1.0-Q4_K_M.gguf` download the official GGUF checkpoint from Hugging Face. `--n-gpu-layers 999` offloads all layers to GPU. `--alias my_model` sets the model name used in API requests. `chat_template_kwargs: {"enable_thinking": true}` activates chain-of-thought reasoning.
 
 ## Running with Ollama
 

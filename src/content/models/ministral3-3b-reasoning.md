@@ -38,32 +38,11 @@ serving:
           --runtime=nvidia --network host \
           ghcr.io/nvidia-ai-iot/vllm:latest-jetson-thor \
           vllm serve mistralai/Ministral-3-3B-Reasoning-2512
-    - engine: "Ollama"
-      type: "CLI"
-      modules_supported:
-        - thor_t5000
-        - thor_t4000
-        - orin_agx_64
-        - orin_nx_16
-        - orin_nano_8
-      install_command: |-
-        curl -fsSL https://ollama.ai/install.sh | sh
-      serve_command_orin: ollama pull ministral-3:3b && ollama serve
-      serve_command_thor: ollama pull ministral-3:3b && ollama serve
-one_shot_inference:
-  modules_supported:
-    - thor_t5000
-    - thor_t4000
-    - orin_agx_64
-    - orin_nx_16
-    - orin_nano_8
-  run_command_orin: ollama run ministral-3:3b
-  run_command_thor: ollama run ministral-3:3b
 ---
 
 Mistral AI's Ministral 3 3B Reasoning is specifically optimized for logical reasoning, problem-solving, and analytical tasks.
 
-For **Ollama**, use the [`ministral-3:3b`](https://ollama.com/library/ministral-3) tag from the official library (check the library readme for minimum Ollama version).
+> **Note:** Ollama does not currently publish a separate tag for the Reasoning variant. The [`ministral-3:3b`](https://ollama.com/library/ministral-3) tag maps to the Instruct checkpoint. Use vLLM with the `mistralai/Ministral-3-3B-Reasoning-2512` HuggingFace checkpoint for the Reasoning model.
 
 The Ministral 3 Reasoning model offers the following capabilities:
 
