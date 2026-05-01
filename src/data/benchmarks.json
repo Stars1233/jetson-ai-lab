@@ -242,7 +242,7 @@
             "concurrency1": {
               "t5000": 61.7,
               "t4000": null,
-              "agx_orin_64gb": null,
+              "agx_orin_64gb": 39.12,
               "orin_nx_16gb": null,
               "orin_nano_8gb": null,
               "dgx_spark": null
@@ -250,7 +250,7 @@
             "concurrency8": {
               "t5000": 115.85,
               "t4000": null,
-              "agx_orin_64gb": null,
+              "agx_orin_64gb": 53.44,
               "orin_nx_16gb": null,
               "orin_nano_8gb": null,
               "dgx_spark": null

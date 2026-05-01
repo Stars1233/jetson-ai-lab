@@ -61,12 +61,24 @@ supported_inference_engines:
     modules_supported:
       - thor_t5000
       - thor_t4000
+      - orin_agx_64
     serve_command_thor: |-
       sudo docker run -it --rm --pull always \
         --runtime=nvidia --network host \
         ghcr.io/nvidia-ai-iot/llama_cpp:latest-jetson-thor \
         llama-server \
-          --hf-repo ggml-org/Nemotron-3-Nano-Omni-GGUF \
+          --hf-repo ggml-org/NVIDIA-Nemotron-3-Nano-Omni \
+          --hf-file nemotron-3-nano-omni-ga_v1.0-Q4_K_M.gguf \
+          --ctx-size 8192 \
+          --port 8080 \
+          --alias my_model \
+          --n-gpu-layers 999
+    serve_command_orin: |-
+      sudo docker run -it --rm --pull always \
+        --runtime=nvidia --network host \
+        ghcr.io/nvidia-ai-iot/llama_cpp:latest-jetson-orin \
+        llama-server \
+          --hf-repo ggml-org/NVIDIA-Nemotron-3-Nano-Omni \
           --hf-file nemotron-3-nano-omni-ga_v1.0-Q4_K_M.gguf \
           --ctx-size 8192 \
           --port 8080 \
@@ -166,6 +178,7 @@ curl -s http://${JETSON_HOST}:30000/v1/chat/completions \
 <div class="device-tabs">
 <div class="device-tab-bar">
 <button class="device-tab active" data-target="thor-llama">Jetson Thor</button>
+<button class="device-tab" data-target="orin-llama">Jetson AGX Orin 64GB</button>
 </div>
 <div class="device-panel" data-panel="thor-llama">
 
@@ -174,7 +187,23 @@ sudo docker run -it --rm --pull always \
   --runtime=nvidia --network host \
   ghcr.io/nvidia-ai-iot/llama_cpp:latest-jetson-thor \
   llama-server \
-    --hf-repo ggml-org/Nemotron-3-Nano-Omni-GGUF \
+    --hf-repo ggml-org/NVIDIA-Nemotron-3-Nano-Omni \
+    --hf-file nemotron-3-nano-omni-ga_v1.0-Q4_K_M.gguf \
+    --ctx-size 8192 \
+    --port 8080 \
+    --alias my_model \
+    --n-gpu-layers 999
+```
+
+</div>
+<div class="device-panel" data-panel="orin-llama">
+
+```bash
+sudo docker run -it --rm --pull always \
+  --runtime=nvidia --network host \
+  ghcr.io/nvidia-ai-iot/llama_cpp:latest-jetson-orin \
+  llama-server \
+    --hf-repo ggml-org/NVIDIA-Nemotron-3-Nano-Omni \
     --hf-file nemotron-3-nano-omni-ga_v1.0-Q4_K_M.gguf \
     --ctx-size 8192 \
     --port 8080 \
@@ -200,7 +229,7 @@ curl -s http://127.0.0.1:8080/v1/chat/completions \
   }'
 ```
 
-> **Note:** `--hf-repo ggml-org/Nemotron-3-Nano-Omni-GGUF` and `--hf-file nemotron-3-nano-omni-ga_v1.0-Q4_K_M.gguf` download the official GGUF checkpoint from Hugging Face. `--n-gpu-layers 999` offloads all layers to GPU. `--alias my_model` sets the model name used in API requests. `chat_template_kwargs: {"enable_thinking": true}` activates chain-of-thought reasoning.
+> **Note:** `--hf-repo ggml-org/NVIDIA-Nemotron-3-Nano-Omni` and `--hf-file nemotron-3-nano-omni-ga_v1.0-Q4_K_M.gguf` download the official GGUF checkpoint from Hugging Face. `--n-gpu-layers 999` offloads all layers to GPU. `--alias my_model` sets the model name used in API requests. `chat_template_kwargs: {"enable_thinking": true}` activates chain-of-thought reasoning.
 
 ## Running with Ollama
 
