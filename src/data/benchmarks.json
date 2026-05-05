@@ -1178,6 +1178,41 @@
       }
     },
     {
+      "family": "MiniMax M2.7",
+      "name": "MiniMax M2.7",
+      "releaseDate": "2026-04-30",
+      "capabilities": {
+        "language": true,
+        "vision": false,
+        "audio": false,
+        "vla": false
+      },
+      "isl": 2048,
+      "osl": 128,
+      "engines": {
+        "llama.cpp": {
+          "UD-IQ4_XS GGUF": {
+            "concurrency1": {
+              "t5000": 17.05,
+              "t4000": null,
+              "agx_orin_64gb": null,
+              "orin_nx_16gb": null,
+              "orin_nano_8gb": null,
+              "dgx_spark": null
+            },
+            "concurrency8": {
+              "t5000": 34.17,
+              "t4000": null,
+              "agx_orin_64gb": null,
+              "orin_nx_16gb": null,
+              "orin_nano_8gb": null,
+              "dgx_spark": null
+            }
+          }
+        }
+      }
+    },
+    {
       "family": "Pi",
       "name": "Pi 0.5",
       "releaseDate": "2025-04-22",
