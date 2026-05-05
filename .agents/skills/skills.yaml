@@ -5,11 +5,11 @@
 skills:
   - name: jetson-model-catalog-inference
     path: .agents/skills/jetson-model-catalog-inference/SKILL.md
-    description: Edit model catalog frontmatter for Serve/Run matrix, vision_capable, serving vs legacy engines, one_shot_inference, and Zod validation rules. Use when adding or editing model pages, inference engines, serve/run commands, or one-shot inference blocks.
+    description: Configure Jetson AI Lab model pages — frontmatter for the Model Details sidebar (parameters, modalities, context length, license, precision pills), the Run on Jetson serve/call/one-shot UI, the three "block" levers (hide_run_button, matrix_modules_disabled, per-engine modules_supported), and the join to src/data/benchmarks.json (benchmark_key, benchmark_series, OOM vs DNR vs null). Use when adding or editing model pages, inference engines, serve/run commands, one-shot blocks, the details sidebar, benchmark wiring, or deciding whether to mark a Jetson module as OOM, blocked, or simply untested.
 
   - name: jetson-ai-lab-verify-build
     path: .agents/skills/jetson-ai-lab-verify-build/SKILL.md
-    description: Run npm run build and triage model collection / MDX / asset errors after content changes. Use when verifying the site builds after content, model, tutorial, or asset changes.
+    description: Run npm run build and triage model collection (Zod), MDX, benchmarks.json, and asset errors after content changes. Use when verifying the site builds after content, model, tutorial, benchmark, or asset changes.
 
   - name: jetson-ai-lab-code-samples
     path: .agents/skills/jetson-ai-lab-code-samples/SKILL.md
