@@ -280,6 +280,27 @@ Each value in the array must be another `models[].name` from `benchmarks.json`. 
 
 ---
 
+## Discoverability artifacts (`/llms.txt`, `/llms-full.txt`)
+
+Two text routes surface the model catalog to external clients (search agents, LLMs, plain `curl` consumers). **Both are auto-generated from the content collection at build time — adding a model page is enough; no manual index edit required.**
+
+| Route | Source file | What it contains |
+|---|---|---|
+| `/llms.txt` | `src/pages/llms.txt.ts` | Short index. Curated tutorial header (static template literal) + auto-generated **Supported Models** section grouped by vendor. Models grouped by `family` per `MODEL_SECTIONS`, sorted by frontmatter `order`. |
+| `/llms-full.txt` | `src/pages/llms-full.txt.ts` | Full long-form index. Iterates `getCollection('tutorials')` and `getCollection('models')`, emits frontmatter + full Markdown body for every page. |
+
+**When you add a new model:**
+
+1. Set `family` to one of the existing families listed in `MODEL_SECTIONS` (in `src/pages/llms.txt.ts`). The model lands in the right section automatically.
+2. Set `short_description` clearly — it is the line text rendered in `/llms.txt`.
+3. Set `order` if you want a specific position within the family (lower = higher in the list).
+
+**When you introduce a brand-new vendor / family** (no existing entry matches): edit `MODEL_SECTIONS` in `src/pages/llms.txt.ts` to add a new section and list its `family` values. Without this edit the new model still appears, but in a fallback `### Other Models` section at the bottom.
+
+There is no static `public/llms.txt` — the dynamic route lives at `src/pages/llms.txt.ts`. Don't reintroduce a static file; Astro would let it shadow the route silently.
+
+---
+
 ## Validation (build will fail if wrong)
 
 `src/content/config.ts` `superRefine` on the models collection (skipped when `hide_run_button: true`):
@@ -305,6 +326,7 @@ Otherwise Zod reports a custom error on `supported_inference_engines`:
 - [ ] All matrix ids in `modules_supported` / `matrix_modules_disabled` / `one_shot_inference.modules_supported` are from `JETSON_MATRIX_MODULES`.
 - [ ] If `benchmark_key` is set, it exactly matches a `models[].name` in `src/data/benchmarks.json`. All product ids in `concurrency*` / `oom` / `dnr` arrays are valid benchmark product ids (not matrix ids).
 - [ ] OOM vs DNR vs null chosen per the [marker semantics](#oom-vs-dnr-vs-null-per-quant-markers) above.
+- [ ] `family` is set to a value listed in `MODEL_SECTIONS` (`src/pages/llms.txt.ts`). If the family is brand-new (new vendor), add a section to `MODEL_SECTIONS` so `/llms.txt` groups it correctly.
 - [ ] Run **`npm run build`** (see skill **`jetson-ai-lab-verify-build`**).
 
 ---
@@ -323,3 +345,5 @@ Otherwise Zod reports a custom error on `supported_inference_engines`:
 | One-shot snippet logic | `src/lib/evalRunModal.ts` |
 | Benchmark chart UI (OOM / DNR rendering) | `src/components/ModelBenchmarkSection.astro` |
 | Benchmark data file | `src/data/benchmarks.json` |
+| `/llms.txt` short index (auto-generated, vendor-grouped) | `src/pages/llms.txt.ts` (edit `MODEL_SECTIONS` for new vendors) |
+| `/llms-full.txt` long-form index (auto-generated) | `src/pages/llms-full.txt.ts` |
