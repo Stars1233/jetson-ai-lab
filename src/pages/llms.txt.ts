@@ -80,6 +80,7 @@ Jetson AI Lab covers the full workflow: initial device setup, inference engine i
 
 ## Applications
 
+- [Multi-modal AI Studio on Jetson](${SITE}/tutorials/multi-modal-ai-studio/): Run a conversational AI pipeline on Jetson Thor with on-device ASR, LLM/VLM, and TTS
 - [Live VLM WebUI](${SITE}/tutorials/live-vlm-webui/): Real-time Vision Language Model interface with WebRTC webcam streaming, OpenAI-compatible API, and interactive prompt editor
 - [OpenClaw on Jetson](${SITE}/tutorials/openclaw/): Fully local AI personal assistant on Jetson with OpenClaw and WhatsApp, no cloud APIs needed
 - [Jetson Platform Services](${SITE}/tutorials/jetson-platform-services/): Build AI-powered edge applications using modular microservices for video analytics, VLM alerts, and zero-shot detection
