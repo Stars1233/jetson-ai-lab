@@ -17,6 +17,8 @@ Run a full static build **after** any change to:
 - `src/data/benchmarks.json` (the model-page benchmark chart joins on this)
 - `public/` (including `public/code-samples/`)
 
+When writing or editing tutorials, include `authors` in frontmatter.
+
 ## Command
 
 From the **repository root** (where `package.json` and `astro.config.mjs` live):

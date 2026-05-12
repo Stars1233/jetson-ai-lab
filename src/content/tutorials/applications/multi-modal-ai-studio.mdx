@@ -1,0 +1,433 @@
+---
+title: "Multi-Modal AI Studio on Jetson"
+description: "Run a conversational AI pipeline on Jetson Thor with on-device ASR, LLM/VLM, and TTS."
+category: "Applications"
+section: "Conversational AI"
+order: 1
+tags: ["multimodal", "speech-ai", "riva", "asr", "tts", "vlm", "vllm", "cosmos-reason2", "webrtc", "jetson-thor"]
+isNew: true
+authors:
+  - name: "Chitoku YATO"
+    github: "tokk-nv"
+  - name: "Aditya Sahu"
+    github: "adsahu-nv"
+---
+
+import Note from '../../../components/admonition/Note.astro';
+import Tip from '../../../components/admonition/Tip.astro';
+import Warning from '../../../components/admonition/Warning.astro';
+
+[Multi-Modal AI Studio](https://github.com/NVIDIA-AI-IOT/multi_modal_ai_studio) is a conversational AI interface for building and tuning voice AI systems. It supports NVIDIA Riva, OpenAI, and other backends; records sessions with full config snapshots; and provides a real-time timeline and latency analysis (TTFA, turn-taking) to compare and optimize setups.
+
+This tutorial demonstrates one configuration with the **NVIDIA RIVA SDK** for ASR/TTS and **Cosmos-Reason2** on vLLM for reasoning. The application is modular, so you can plug in other compatible ASR, LLM/VLM, or TTS backends that expose the supported APIs.
+
+## Prerequisites
+
+This tutorial is written for **Jetson AGX Thor** because it uses the **RIVA SDK** and Cosmos-Reason2-8B together on the same device. You can adapt the same application to other model backends if your Jetson has less memory.
+
+<div style="overflow-x: auto; margin: 1.5rem 0;">
+<table style="width: 100%; border-collapse: collapse; font-size: 0.95rem;">
+<thead>
+<tr style="background: #e2e8f0; color: #1e293b;">
+<th style="padding: 12px 16px; text-align: left; font-weight: 600;">Requirement</th>
+<th style="padding: 12px 16px; text-align: left; font-weight: 600;">Details</th>
+</tr>
+</thead>
+<tbody>
+<tr style="background: #f8fafc;"><td style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0; font-weight: 500;">Jetson device</td><td style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0;">Jetson AGX Thor running JetPack 7</td></tr>
+<tr style="background: #ffffff;"><td style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0; font-weight: 500;">ASR service</td><td style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0;">NVIDIA RIVA ARM64 quick start initialized with the Parakeet ASR model</td></tr>
+<tr style="background: #f8fafc;"><td style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0; font-weight: 500;">LLM / VLM service</td><td style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0;">Cosmos-Reason2-8B weights available at <code>~/models/cosmos-reason2-8b</code> and served by vLLM</td></tr>
+<tr style="background: #ffffff;"><td style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0; font-weight: 500;">TTS service</td><td style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0;">NVIDIA RIVA ARM64 quick start initialized with the Magpie TTS model</td></tr>
+<tr style="background: #f8fafc;"><td style="padding: 12px 16px; font-weight: 500;">Client browser</td><td style="padding: 12px 16px;">A PC browser on the same network, or a browser on Jetson Thor, with microphone and camera access</td></tr>
+</tbody>
+</table>
+</div>
+
+## Architecture
+
+Multi-Modal AI Studio does not run the AI models by itself. It connects to model services through standard APIs, which makes the pipeline easy to swap and tune.
+
+![Multi-Modal AI Studio architecture](https://raw.githubusercontent.com/NVIDIA-AI-IOT/multi_modal_ai_studio/main/docs/images/MMAS-arch.png)
+
+## Step 1: Start NVIDIA RIVA SDK (ASR + TTS)
+
+RIVA provides the ASR and TTS services for the voice pipeline. This tutorial uses **Riva 2.24.0 Embedded (aarch64)**; see the [Riva support matrix](https://docs.nvidia.com/deeplearning/riva/user-guide/docs/support-matrix/support-matrix.html) for platform and model compatibility.
+
+Before running the commands below, install and initialize RIVA by following the [NVIDIA Riva setup for voice ASR/TTS](https://github.com/NVIDIA-AI-IOT/multi_modal_ai_studio/blob/main/INSTALL.md#nvidia-riva-setup-for-voice-asrtts) instructions in the Multi-Modal AI Studio repository.
+
+After RIVA is installed and initialized, start it from the RIVA quick start directory:
+
+```bash
+cd riva_quickstart_arm64_v2.24.0
+bash riva_start.sh
+```
+
+Wait for the server to be ready. You can monitor the logs:
+
+```bash
+docker logs -f riva-speech
+```
+
+Look for:
+
+```text
+RIVA server listening on 0.0.0.0:50051
+All models loaded successfully
+```
+
+This can take several minutes, especially the first time after boot.
+
+## Step 2: Start vLLM with Cosmos-Reason2
+
+Next, start the LLM/VLM backend. RIVA uses ports `8000`, `8001`, and `8002`, so this tutorial serves vLLM on **port 8010**.
+
+Use the [Cosmos Reason2 8B model page](/models/cosmos-reason2-8b/) for the latest serving commands, including NGC CLI setup if you have not configured it yet. The vLLM path uses the FP8 checkpoint from NGC, so download the model first and set `MODEL_PATH`:
+
+```bash
+ngc registry model download-version "nim/nvidia/cosmos-reason2-8b:1208-fp8-static-kv8" \
+  --dest ~/.cache/huggingface/hub
+
+export MODEL_PATH="${HOME}/.cache/huggingface/hub/cosmos-reason2-8b_v1208-fp8-static-kv8"
+```
+
+Then serve the model on port `8010`:
+
+```bash
+mkdir -p ~/.cache/vllm
+sudo sysctl -w vm.drop_caches=3
+
+sudo docker run -it --rm --runtime=nvidia --network host \
+  -v $MODEL_PATH:/models/cosmos-reason2-8b:ro \
+  -v ${HOME}/.cache/vllm:/root/.cache/vllm \
+  ghcr.io/nvidia-ai-iot/vllm:0.14.0-r38.3-arm64-sbsa-cu130-24.04 \
+  vllm serve /models/cosmos-reason2-8b \
+    --served-model-name nvidia/cosmos-reason2-8b-fp8 \
+    --max-model-len 8192 \
+    --gpu-memory-utilization 0.7 \
+    --reasoning-parser qwen3 \
+    --media-io-kwargs '{"video": {"num_frames": -1}}' \
+    --enable-prefix-caching \
+    --port 8010
+```
+
+Wait until the server is ready:
+
+```text
+INFO:     Uvicorn running on http://0.0.0.0:8010
+```
+
+Verify the OpenAI-compatible API:
+
+```bash
+curl http://localhost:8010/v1/models
+```
+
+You should see `nvidia/cosmos-reason2-8b-fp8` in the response.
+
+<Warning title="⚠️ Port conflict with RIVA">
+  Do not use vLLM's default port when RIVA is running. Keep vLLM on `8010` or another unused port, then use the same port in Multi-Modal AI Studio's LLM API base URL.
+</Warning>
+
+## Step 3: Start Multi-Modal AI Studio
+
+In a **new terminal**, keep RIVA and vLLM running, then clone and install the application:
+
+```bash
+git clone https://github.com/NVIDIA-AI-IOT/multi_modal_ai_studio.git ~/multi_modal_ai_studio
+cd ~/multi_modal_ai_studio
+
+python3 -m venv .venv
+source .venv/bin/activate
+
+pip install -e .
+```
+
+Launch the Studio server and point it at the local RIVA and vLLM services:
+
+```bash
+multi-modal-ai-studio --port 8092 \
+  --asr-server localhost:50051 \
+  --tts-server localhost:50051 \
+  --llm-api-base http://localhost:8010/v1 \
+  --llm-model nvidia/cosmos-reason2-8b-fp8
+```
+
+## Step 4: Open the Web Interface
+
+From your client PC browser, open:
+
+```text
+https://<JETSON_IP>:8092
+```
+
+Accept the self-signed certificate by clicking **Advanced** and continuing to the site. HTTPS is required because browsers restrict microphone and camera access on insecure origins.
+
+When prompted, allow microphone and camera permissions.
+
+## Step 5: Configure and Run a Voice + Vision Session
+
+Click **New Voice Chat** to open the configuration panel. First configure the tabs below, then click **Start Session** and speak naturally.
+
+![Multi-Modal AI Studio session interface](https://github.com/NVIDIA-AI-IOT/multi_modal_ai_studio/raw/main/docs/images/screenshot_example_2.png)
+
+<details>
+<summary><strong>1. ASR Tab → Select "RIVA Speech"</strong></summary>
+
+<div style="overflow-x: auto; margin: 1.5rem 0;">
+<table style="width: 100%; border-collapse: collapse; font-size: 0.95rem;">
+<thead>
+<tr style="background: #e2e8f0; color: #1e293b;">
+<th style="padding: 12px 16px; text-align: left; font-weight: 600;">Setting</th>
+<th style="padding: 12px 16px; text-align: left; font-weight: 600;">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr style="background: #f8fafc;"><td style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0; font-weight: 500;">Server Address</td><td style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0;"><code>localhost:50051</code></td></tr>
+<tr style="background: #ffffff;"><td style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0; font-weight: 500;">ASR Language</td><td style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0;"><code>en-US</code></td></tr>
+<tr style="background: #f8fafc;"><td style="padding: 12px 16px; font-weight: 500;">ASR Model</td><td style="padding: 12px 16px;"><code>parakeet-1.1b-en-US-asr-streaming-silero-vad-sortformer</code></td></tr>
+</tbody>
+</table>
+</div>
+
+The Silero VAD variant detects when you start and stop speaking, so the system knows when to begin transcription and when your turn is over.
+
+</details>
+
+<details>
+<summary><strong>2. LLM/VLM Tab</strong></summary>
+
+<div style="overflow-x: auto; margin: 1.5rem 0;">
+<table style="width: 100%; border-collapse: collapse; font-size: 0.95rem;">
+<thead>
+<tr style="background: #e2e8f0; color: #1e293b;">
+<th style="padding: 12px 16px; text-align: left; font-weight: 600;">Setting</th>
+<th style="padding: 12px 16px; text-align: left; font-weight: 600;">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr style="background: #f8fafc;"><td style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0; font-weight: 500;">API Base URL</td><td style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0;"><code>http://localhost:8010/v1</code></td></tr>
+<tr style="background: #ffffff;"><td style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0; font-weight: 500;">Model</td><td style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0;"><code>nvidia/cosmos-reason2-8b-fp8</code></td></tr>
+<tr style="background: #f8fafc;"><td style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0; font-weight: 500;">Utility Model</td><td style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0;"><code>nvidia/cosmos-reason2-8b-fp8</code></td></tr>
+<tr style="background: #ffffff;"><td style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0; font-weight: 500;">Enable Streaming Responses</td><td style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0;">Checked</td></tr>
+<tr style="background: #f8fafc;"><td style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0; font-weight: 500;">Include Conversation History</td><td style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0;">Checked</td></tr>
+<tr style="background: #ffffff;"><td style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0; font-weight: 500;">Enable Vision (VLM)</td><td style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0;"><code>Video Input</code></td></tr>
+<tr style="background: #f8fafc;"><td style="padding: 12px 16px; font-weight: 500;">System Prompt</td><td style="padding: 12px 16px;">See below</td></tr>
+</tbody>
+</table>
+</div>
+
+Suggested system prompt for concise vision responses:
+
+```text
+You are a vision assistant. Give one short sentence answers only. Be direct. No explanations. Use plain text only.
+```
+
+<Note title="📝 Why these settings?">
+  - **Streaming Responses** lets TTS start speaking before the full LLM response is generated, reducing perceived latency.
+  - **Conversation History** gives the LLM context from previous turns, enabling follow-up questions.
+  - **Vision (Video Input)** captures frames from the camera and includes them in the LLM prompt.
+  - **System Prompt** shapes the AI's behavior. Shorter responses mean faster TTS and a more conversational feel.
+</Note>
+
+</details>
+
+<details>
+<summary><strong>3. TTS Tab</strong></summary>
+
+<div style="overflow-x: auto; margin: 1.5rem 0;">
+<table style="width: 100%; border-collapse: collapse; font-size: 0.95rem;">
+<thead>
+<tr style="background: #e2e8f0; color: #1e293b;">
+<th style="padding: 12px 16px; text-align: left; font-weight: 600;">Setting</th>
+<th style="padding: 12px 16px; text-align: left; font-weight: 600;">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr style="background: #f8fafc;"><td style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0; font-weight: 500;">RIVA Server</td><td style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0;"><code>localhost:50051</code></td></tr>
+<tr style="background: #ffffff;"><td style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0; font-weight: 500;">TTS Model</td><td style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0;"><code>magpie_tts_ensemble_Magpie-Multilingual</code></td></tr>
+<tr style="background: #f8fafc;"><td style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0; font-weight: 500;">Language</td><td style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0;">English (US)</td></tr>
+<tr style="background: #ffffff;"><td style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0; font-weight: 500;">Sample Rate (Hz)</td><td style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0;"><code>22050</code></td></tr>
+<tr style="background: #f8fafc;"><td style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0; font-weight: 500;">Quality</td><td style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0;">High (Better)</td></tr>
+<tr style="background: #ffffff;"><td style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0; font-weight: 500;">Start speaking before LLM finishes</td><td style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0;">Checked</td></tr>
+<tr style="background: #f8fafc;"><td style="padding: 12px 16px; font-weight: 500;">Words before first speech</td><td style="padding: 12px 16px;"><code>10</code></td></tr>
+</tbody>
+</table>
+</div>
+
+"Start speaking before LLM finishes" is key for low latency. TTS begins synthesizing after the first 10 words arrive from the LLM, rather than waiting for the complete response.
+
+</details>
+
+<details>
+<summary><strong>4. Devices Tab</strong></summary>
+
+<div style="overflow-x: auto; margin: 1.5rem 0;">
+<table style="width: 100%; border-collapse: collapse; font-size: 0.95rem;">
+<thead>
+<tr style="background: #e2e8f0; color: #1e293b;">
+<th style="padding: 12px 16px; text-align: left; font-weight: 600;">Setting</th>
+<th style="padding: 12px 16px; text-align: left; font-weight: 600;">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr style="background: #f8fafc;"><td style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0; font-weight: 500;">Camera Device</td><td style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0;"><code>Default (browser)</code></td></tr>
+<tr style="background: #ffffff;"><td style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0; font-weight: 500;">Microphone Device</td><td style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0;"><code>Default (browser)</code></td></tr>
+<tr style="background: #f8fafc;"><td style="padding: 12px 16px; font-weight: 500;">Speaker Device</td><td style="padding: 12px 16px;"><code>Default (browser)</code></td></tr>
+</tbody>
+</table>
+</div>
+
+These devices are selected from the client browser. If you open the UI on a laptop, the laptop microphone, camera, and speakers are used even though the AI services run on Jetson.
+
+</details>
+
+<details>
+<summary><strong>5. App Tab</strong></summary>
+
+<div style="overflow-x: auto; margin: 1.5rem 0;">
+<table style="width: 100%; border-collapse: collapse; font-size: 0.95rem;">
+<thead>
+<tr style="background: #e2e8f0; color: #1e293b;">
+<th style="padding: 12px 16px; text-align: left; font-weight: 600;">Setting</th>
+<th style="padding: 12px 16px; text-align: left; font-weight: 600;">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr style="background: #f8fafc;"><td style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0; font-weight: 500;">Start sessions with microphone muted</td><td style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0;">Unchecked</td></tr>
+<tr style="background: #ffffff;"><td style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0; font-weight: 500;">Barge-in</td><td style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0;">Unchecked</td></tr>
+<tr style="background: #f8fafc;"><td style="padding: 12px 16px; font-weight: 500;">Session Directory</td><td style="padding: 12px 16px;">Default (<code>sessions</code>)</td></tr>
+</tbody>
+</table>
+</div>
+
+Once the basic session is working, enable barge-in to test interruption behavior.
+
+</details>
+
+After the session starts, watch the timeline at the bottom of the interface. It shows when each stage starts and finishes:
+
+- **ASR** transcribes your speech.
+- **LLM/VLM** generates the assistant response.
+- **TTS** synthesizes and plays audio.
+
+Try prompts that require both speech and vision:
+
+```text
+What object am I holding?
+```
+
+```text
+Describe what changed in the scene.
+```
+
+```text
+Is there a person visible? Answer yes or no.
+```
+
+When you are finished, click the red stop button. Select the session from the history sidebar to review the transcript, timeline, and latency metrics.
+
+## Tuning for Lower Latency
+
+The best settings depend on your model, microphone, room noise, and use case. These are good first levers:
+
+<div style="overflow-x: auto; margin: 1.5rem 0;">
+<table style="width: 100%; border-collapse: collapse; font-size: 0.95rem;">
+<thead>
+<tr style="background: #e2e8f0; color: #1e293b;">
+<th style="padding: 12px 16px; text-align: left; font-weight: 600;">Lever</th>
+<th style="padding: 12px 16px; text-align: left; font-weight: 600;">Why It Helps</th>
+</tr>
+</thead>
+<tbody>
+<tr style="background: #f8fafc;"><td style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0; font-weight: 500;">Short system prompt</td><td style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0;">Reduces prompt tokens and encourages concise responses</td></tr>
+<tr style="background: #ffffff;"><td style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0; font-weight: 500;">Streaming responses</td><td style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0;">Allows TTS to start before the full response is complete</td></tr>
+<tr style="background: #f8fafc;"><td style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0; font-weight: 500;">Words before first speech</td><td style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0;">Lower values start speech earlier, but can sound less natural</td></tr>
+<tr style="background: #ffffff;"><td style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0; font-weight: 500;">VAD sensitivity</td><td style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0;">Improves turn detection in noisy rooms</td></tr>
+<tr style="background: #f8fafc;"><td style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0; font-weight: 500;">Max model length</td><td style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0;">Reduces KV cache memory pressure</td></tr>
+<tr style="background: #ffffff;"><td style="padding: 12px 16px; font-weight: 500;">GPU memory utilization</td><td style="padding: 12px 16px;">Leaves headroom for RIVA and the app</td></tr>
+</tbody>
+</table>
+</div>
+
+<Tip title="Start with the prompt">
+  For conversational demos, short spoken responses usually feel better than detailed paragraphs. Tune the system prompt first before changing infrastructure settings.
+</Tip>
+
+## Troubleshooting
+
+<details>
+<summary><code>multi-modal-ai-studio: command not found</code></summary>
+
+Activate the Python virtual environment before launching:
+
+```bash
+cd ~/multi_modal_ai_studio
+source .venv/bin/activate
+multi-modal-ai-studio --help
+```
+
+</details>
+
+<details>
+<summary>Port <code>8092</code> is already in use</summary>
+
+Stop the existing process and restart:
+
+```bash
+fuser -k 8092/tcp
+```
+
+</details>
+
+<details>
+<summary>vLLM fails to start because ports are busy</summary>
+
+Do not use vLLM's default port when RIVA is running. Use `--port 8010` or another unused port, then update the Studio LLM API base URL to match.
+
+</details>
+
+<details>
+<summary>Browser cannot access the microphone or camera</summary>
+
+Make sure you opened the HTTPS URL:
+
+```text
+https://<JETSON_IP>:8092
+```
+
+Accept the self-signed certificate and allow browser permissions for microphone and camera.
+
+</details>
+
+<details>
+<summary>ASR does not resume after being muted for a long time</summary>
+
+The ASR stream can time out if it stops receiving audio for an extended period. Stop the session with the red button, then start a fresh session.
+
+</details>
+
+<details>
+<summary>GPU memory is not released after stopping vLLM</summary>
+
+After stopping the vLLM container, clear cached memory:
+
+```bash
+sudo sysctl -w vm.drop_caches=3
+```
+
+</details>
+
+## Next Steps
+
+- Change the system prompt to create a different assistant personality.
+- Enable barge-in and test interrupting the assistant while it is speaking.
+- Try a USB camera connected directly to Jetson.
+- Compare latency with vision enabled and disabled.
+- Save your favorite configuration as a preset.
+- Swap the vLLM model or RIVA voices to evaluate different pipeline combinations.
+
+## Resources
+
+- [Multi-Modal AI Studio GitHub repository](https://github.com/NVIDIA-AI-IOT/multi_modal_ai_studio)
+- [Cosmos Reason2 on Jetson](/tutorials/cosmos-reason2-vlm/)
+- [Live VLM WebUI](/tutorials/live-vlm-webui/)
