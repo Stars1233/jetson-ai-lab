@@ -4,7 +4,6 @@ import { getCollection } from 'astro:content';
 const SITE = 'https://www.jetson-ai-lab.com';
 
 const TUTORIAL_SLUG_MAP: Record<string, string> = {
-	'applications/jetson-platform-services': 'jetson-platform-services',
 	'applications/live-vlm-webui': 'live-vlm-webui',
 	'applications/nanoowl': 'nanoowl',
 	'applications/openclaw': 'openclaw',
