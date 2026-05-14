@@ -48,8 +48,6 @@ export default defineConfig({
     '/tutorial_nanoowl': '/tutorials/nanoowl/',
     '/tutorial_live-vlm-webui.html': '/tutorials/live-vlm-webui/',
     '/tutorial_live-vlm-webui': '/tutorials/live-vlm-webui/',
-    '/tutorial_jps.html': '/tutorials/jetson-platform-services/',
-    '/tutorial_jps': '/tutorials/jetson-platform-services/',
     '/tutorial_gen-ai-benchmarking.html': '/tutorials/genai-benchmarking/',
     '/tutorial_gen-ai-benchmarking': '/tutorials/genai-benchmarking/',
     '/workshop_gtcdc2025.html': '/tutorials/workshop-gtc-dc-2025/',

@@ -5,7 +5,6 @@ category: "VLA"
 section: "Vision-Language-Action Models"
 order: 1
 tags: ["vla", "openpi", "pi0.5", "robotics", "jetson-thor", "tensorrt", "nvfp4", "fp8", "inference", "vision-language-action"]
-isNew: true
 authors:
   - name: "Aditya Sahu"
     github: "adsahu-nv"

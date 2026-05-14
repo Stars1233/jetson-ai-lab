@@ -257,44 +257,6 @@
             }
           }
         },
-        "SGLang": {
-          "FP8": {
-            "concurrency1": {
-              "t5000": 57,
-              "t4000": 46,
-              "agx_orin_64gb": null,
-              "orin_nx_16gb": null,
-              "orin_nano_8gb": null,
-              "dgx_spark": null
-            },
-            "concurrency8": {
-              "t5000": 228,
-              "t4000": 182,
-              "agx_orin_64gb": null,
-              "orin_nx_16gb": null,
-              "orin_nano_8gb": null,
-              "dgx_spark": null
-            }
-          },
-          "NVFP4": {
-            "concurrency1": {
-              "t5000": 84,
-              "t4000": 67,
-              "agx_orin_64gb": null,
-              "orin_nx_16gb": null,
-              "orin_nano_8gb": null,
-              "dgx_spark": null
-            },
-            "concurrency8": {
-              "t5000": 365,
-              "t4000": 292,
-              "agx_orin_64gb": null,
-              "orin_nx_16gb": null,
-              "orin_nano_8gb": null,
-              "dgx_spark": null
-            }
-          }
-        },
         "Ollama": {
           "Q4_K_M": {
             "concurrency1": {

@@ -29,33 +29,11 @@ supported_inference_engines:
       sudo docker run -it --rm --pull always \
         --runtime=nvidia --network host \
         -v $HOME/.cache/huggingface:/root/.cache/huggingface \
-        vllm/vllm-openai:v0.20.0-ubuntu2404 \
-        bash -c "pip install -q 'vllm[audio]' && vllm serve nvidia/Nemotron-3-Nano-Omni-30B-A3B-Reasoning-NVFP4 \
-          --trust-remote-code \
-          --gpu-memory-utilization 0.65 \
-          --max-model-len 32768 \
-          --reasoning-parser nemotron_v3 \
-          --enable-auto-tool-choice \
-          --tool-call-parser qwen3_coder"
-  - engine: "SGLang"
-    type: "Container"
-    modules_supported:
-      - thor_t5000
-      - thor_t4000
-    serve_command_thor: |-
-      sudo docker run -it --rm --pull always \
-        --runtime=nvidia --network host \
-        --shm-size 16g \
-        -v $HOME/.cache/huggingface:/root/.cache/huggingface \
         --entrypoint bash \
-        lmsysorg/sglang:latest \
-        -c "pip install -q librosa && sglang serve nvidia/Nemotron-3-Nano-Omni-30B-A3B-Reasoning-NVFP4 \
-          --trust-remote-code \
-          --mem-fraction-static 0.80 \
-          --max-running-requests 8 \
-          --reasoning-parser nemotron_3 \
-          --tool-call-parser qwen3_coder \
-          --disable-cuda-graph"
+        vllm/vllm-openai:v0.20.0-ubuntu2404 \
+        -c "pip install -q 'vllm[audio]' && vllm serve nvidia/Nemotron-3-Nano-Omni-30B-A3B-Reasoning-NVFP4 \
+          --trust-remote-code --gpu-memory-utilization 0.8 --max-model-len 32768 \
+          --reasoning-parser nemotron_v3 --enable-auto-tool-choice --tool-call-parser qwen3_coder"
   - engine: "llama.cpp"
     type: "Container"
     modules_supported:
@@ -123,54 +101,11 @@ Nemotron Nano 3 Omni is NVIDIA's multimodal reasoning model combining language, 
 sudo docker run -it --rm --pull always \
   --runtime=nvidia --network host \
   -v $HOME/.cache/huggingface:/root/.cache/huggingface \
-  vllm/vllm-openai:v0.20.0-ubuntu2404 \
-  bash -c "pip install -q 'vllm[audio]' && vllm serve nvidia/Nemotron-3-Nano-Omni-30B-A3B-Reasoning-NVFP4 \
-    --trust-remote-code \
-    --gpu-memory-utilization 0.65 \
-    --max-model-len 32768 \
-    --reasoning-parser nemotron_v3 \
-    --enable-auto-tool-choice \
-    --tool-call-parser qwen3_coder"
-```
-
-## Running with SGLang
-
-<div class="device-tabs">
-<div class="device-tab-bar">
-<button class="device-tab active" data-target="thor-sglang">Jetson Thor</button>
-</div>
-<div class="device-panel" data-panel="thor-sglang">
-
-```bash
-sudo docker run -it --rm --pull always \
-  --runtime=nvidia --network host \
-  --shm-size 16g \
-  -v $HOME/.cache/huggingface:/root/.cache/huggingface \
   --entrypoint bash \
-  lmsysorg/sglang:latest \
-  -c "pip install -q librosa && sglang serve nvidia/Nemotron-3-Nano-Omni-30B-A3B-Reasoning-NVFP4 \
-    --trust-remote-code \
-    --mem-fraction-static 0.80 \
-    --max-running-requests 8 \
-    --reasoning-parser nemotron_3 \
-    --tool-call-parser qwen3_coder \
-    --disable-cuda-graph"
-```
-
-> **Note:** SGLang uses `--reasoning-parser nemotron_3` (distinct from vLLM's `nemotron_v3`). `--disable-cuda-graph` is required for this model. `librosa` is installed at runtime for audio encoder support.
-
-</div>
-</div>
-
-Once the server is running, query it with:
-
-```bash
-curl -s http://${JETSON_HOST}:30000/v1/chat/completions \
-  -H "Content-Type: application/json" \
-  -d '{
-    "model": "nvidia/Nemotron-3-Nano-Omni-30B-A3B-Reasoning-NVFP4",
-    "messages": [{"role": "user", "content": "Hello!"}]
-  }'
+  vllm/vllm-openai:v0.20.0-ubuntu2404 \
+  -c "pip install -q 'vllm[audio]' && vllm serve nvidia/Nemotron-3-Nano-Omni-30B-A3B-Reasoning-NVFP4 \
+    --trust-remote-code --gpu-memory-utilization 0.8 --max-model-len 32768 \
+    --reasoning-parser nemotron_v3 --enable-auto-tool-choice --tool-call-parser qwen3_coder"
 ```
 
 ## Running with llama.cpp
