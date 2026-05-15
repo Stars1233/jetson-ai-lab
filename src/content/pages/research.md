@@ -384,4 +384,4 @@ Our meeting recordings and resources are available for review and reference.
 
 ## Core Contributors
 
-Our research group brings together experts from academia, industry, and the open-source community who are passionate about advancing edge AI and robotics. Below are sustaining members who participate in the research forum and related activities. People who are no longer active in the group but made foundational contributions—including widely used tools such as jetson-containers—are listed separately as **emeritus contributors** at the end of this page.
+Our research group brings together experts from academia, industry, and the open-source community who are passionate about advancing edge AI and robotics. Below are sustaining members who participate in the research forum and related activities. People who are no longer active in the group but made foundational contributions — including widely used tools such as [jetson-containers](https://github.com/dusty-nv/jetson-containers) — are listed separately as **emeritus contributors** at the end of this page.
