@@ -58,14 +58,6 @@ past_meetings:
       - "Review of OpenVLA results (Dustin Franklin)"
       - "Oculus Interface for Jetson (Al Costa)"
 team_members:
-  - name: "Dustin Franklin"
-    role: "Principal Engineer"
-    org: ""
-    location: "Pittsburgh, PA"
-    image: "/images/research/Dustin_Franklin.jpg"
-    linkedin: "https://www.linkedin.com/in/dustin-franklin-b3aaa173/"
-    github: "https://github.com/dusty-nv"
-    expertise: ["jetson-inference", "jetson-containers"]
   - name: "Nurgaliyev Shakhizat"
     role: "Researcher"
     org: "Institute of Smart Systems and AI"
@@ -327,6 +319,15 @@ team_members:
     image: "/images/research/Ori_Nachum.jpg"
     linkedin: ""
     expertise: ["AI", "Innovation"]
+emeritus_members:
+  - name: "Dustin Franklin"
+    role: "Principal Engineer"
+    org: "Formerly NVIDIA"
+    location: "Pittsburgh, PA"
+    image: "/images/research/Dustin_Franklin.jpg"
+    linkedin: "https://www.linkedin.com/in/dustin-franklin-b3aaa173/"
+    github: "https://github.com/dusty-nv"
+    expertise: ["jetson-inference", "jetson-containers"]
 ---
 
 The Jetson AI Lab Research Group is a global collective for advancing open-source Edge ML, open to anyone to join and collaborate with others from the community and leverage each other's work. Our goal is using advanced AI for good in real-world applications in accessible and responsible ways.
@@ -383,4 +384,4 @@ Our meeting recordings and resources are available for review and reference.
 
 ## Core Contributors
 
-Our research group brings together experts from academia, industry, and the open-source community who are passionate about advancing edge AI and robotics. Below are some of our sustaining members who have been actively contributing to generative AI in edge computing.
+Our research group brings together experts from academia, industry, and the open-source community who are passionate about advancing edge AI and robotics. Below are sustaining members who participate in the research forum and related activities. People who are no longer active in the group but made foundational contributions — including widely used tools such as [jetson-containers](https://github.com/dusty-nv/jetson-containers) — are listed separately as **emeritus contributors** at the end of this page.
